@@ -1,0 +1,30 @@
+{
+  "name": "chat-qr-db",
+  "version": "1.0.0",
+  "description": "Manages the database for the chat-qr application",
+  "main": "index.js",
+  "dependencies": {
+    "couch-update-views": "^1.0.8",
+    "underscore": "^1.9.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "lab -v test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/purpurato/chat_QR.git"
+  },
+  "keywords": [
+    "bitcoin",
+    "qr",
+    "payment",
+    "database"
+  ],
+  "author": "purpurato.acido@gmail.com, juanprietob@gmail.com",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/purpurato/chat_QR/issues"
+  },
+  "homepage": "https://github.com/purpurato/chat_QR#readme"
+}
