@@ -4,8 +4,9 @@
   "description": "Server application for the chat-qr bot",
   "main": "index.js",
   "dependencies": {
-    "chat-qr": "^1.0.0",
-    "chat-qr-db": "^1.0.0",
+    "chat-qr": "file:../chat-qr",
+    "chat-qr-db": "file:../chat-qr-db",
+    "chat-qr-transaction": "file:../chat-qr-transaction",
     "couch-provider": "^2.1.4",
     "good": "^8.1.2",
     "good-console": "^8.0.0",
