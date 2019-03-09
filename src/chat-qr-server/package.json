@@ -1,0 +1,41 @@
+{
+  "name": "chat-qr-server",
+  "version": "1.0.0",
+  "description": "Server application for the chat-qr bot",
+  "main": "index.js",
+  "dependencies": {
+    "chat-qr": "^1.0.0",
+    "chat-qr-db": "^1.0.0",
+    "couch-provider": "^2.1.4",
+    "good": "^8.1.2",
+    "good-console": "^8.0.0",
+    "good-file": "^6.0.1",
+    "good-squeeze": "^5.1.0",
+    "h2o2": "^8.1.2",
+    "hapi": "^17.8.4",
+    "inert": "^5.1.2",
+    "lout": "^11.1.0",
+    "underscore": "^1.9.1",
+    "vision": "^5.4.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "lab -v test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/purpurato/chat_QR.git"
+  },
+  "keywords": [
+    "Sever",
+    "app",
+    "qr",
+    "bitcoin"
+  ],
+  "author": "purpurato.acido@gmail.com, juanprietob@gmail.com",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/purpurato/chat_QR/issues"
+  },
+  "homepage": "https://github.com/purpurato/chat_QR#readme"
+}

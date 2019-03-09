@@ -1,0 +1,34 @@
+{
+  "name": "chat-qr",
+  "version": "1.0.0",
+  "description": "Answers with a QR code for bitcoin payment",
+  "main": "index.js",
+  "scripts": {
+    "test": "lab -v test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/purpurato/chat_QR.git"
+  },
+  "keywords": [
+    "Digital",
+    "currency",
+    "bitcoin",
+    "qr",
+    "code",
+    "payment",
+    "bot"
+  ],
+  "author": "Javier Esteban Diaz, Juan Carlos Prieto",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/purpurato/chat_QR/issues"
+  },
+  "homepage": "https://github.com/purpurato/chat_QR#readme",
+  "dependencies": {
+    "concat-stream": "^2.0.0",
+    "qr-image": "^3.2.0",
+    "request": "^2.88.0",
+    "telegram-bot-api": "^1.3.1"
+  }
+}
