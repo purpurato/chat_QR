@@ -13,10 +13,6 @@ module.exports = function(server, conf){
 		constructor(){
 		}
 
-		setTelegram(telegram){
-			this.telegram = telegram;
-		}
-
 		getRate(){
 			return new Promise(function(resolve, reject){
 				request({
@@ -37,13 +33,13 @@ module.exports = function(server, conf){
 
 			Promise.all([server.methods.getWallet(message.chat.id), that.getRate()])
 			.then(function(res){
-				var wallet = res[0];
+				var wallet = res[0][0];
 				var rate = res[1];
-				var currency = Number.parseFloat(message.text.substring(1));
+				var invoice = Number.parseFloat(message.text.substring(1));
 
-				console.log(wallet, rate, currency);
+				console.log(wallet, rate, invoice);
 				var amount = {
-					amount: currency/rate
+					amount: invoice/rate
 				}
 
 				var qr_string = 'bitcoin:' + wallet.address + "?" + qs.stringify(amount);
@@ -56,26 +52,32 @@ module.exports = function(server, conf){
 					qr_string: qr_string,
 					chat_id: message.chat.id,
 					date: Date.now(),
-					status: "CREATED"
+					status: "CREATED", 
+					rate: rate, 
+					invoice: invoice
 				}
 
 				return server.methods.couchprovider.uploadDocuments([transaction_doc])
 				.then(function(res){
 					var transaction_id = res[0].id;
-					return that.telegram.sendPhoto({
+					return server.methods.sendPhoto({
 						chat_id: message.chat.id,
 						photo: qr_png
 					})
 					.then(function(){
-
-						return that.telegram.sendMessage({
+						return server.methods.sendMessage({
 							chat_id: message.chat.id,
 							text: "Action items",
 							reply_markup: JSON.stringify({
 								inline_keyboard: [[{
-									text: "Verify",
+									text: "Ok",
 									callback_data: JSON.stringify({
-										verify: transaction_id
+										"ot": transaction_id
+									})
+								}, {
+									text: "Cancel",
+									callback_data: JSON.stringify({
+										"ct": transaction_id
 									})
 								}]]
 							})
@@ -88,12 +90,17 @@ module.exports = function(server, conf){
 			})
 		}
 
-		verifyTransaction(transaction_id){
+		verifyTransaction(transaction_id, ok_transaction){
 			var that = this;
 
 			return server.methods.couchprovider.getDocument(transaction_id)
 			.then(function(doc){
-				console.log(doc);
+				if(ok_transaction){
+					doc.status = "ALIVE";
+				}else{
+					doc.status = "CANCEL";
+				}
+				return server.methods.uploadDocuments(doc);
 			})
 		}
 	}

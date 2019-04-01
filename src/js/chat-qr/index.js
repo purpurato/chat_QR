@@ -12,8 +12,6 @@ exports.plugin = {
 	    	}
 		});
 
-		handler.setTelegram(api);
-
 		api.on('message', function(message)
 		{
 			console.log('message', message);
@@ -40,8 +38,11 @@ exports.plugin = {
 			console.log('inline.callback.query', message);
 			if(message.data){
 				var data = JSON.parse(message.data);
-				if(data.verify){
-					handler.verifyTransaction(data.verify);
+				console.log(data);
+				if(data.ot){
+					handler.verifyTransaction(data.ot, true);
+				}else if(data.ct){
+					handler.verifyTransaction(data.ct, false);
 				}
 			}
 		});
@@ -58,6 +59,37 @@ exports.plugin = {
 			// Subscribe on it in case if you want to handle all possible
 			// event types in one callback
 			console.log(message);
+		});
+
+		server.method({
+			name: 'sendMessage',
+			method: function(message){
+				return this.telegram.sendMessage(message)
+				.catch(function(e){
+					console.error("sendMessage", e);
+				});
+			},
+			options: {
+				bind: {
+					telegram: api
+				}
+			}
+		});
+
+
+		server.method({
+			name: 'sendPhoto',
+			method: function(message){
+				return this.telegram.sendPhoto(message)
+				.catch(function(e){
+					console.error("sendMessage", e);
+				});;
+			},
+			options: {
+				bind: {
+					telegram: api
+				}
+			}
 		});
 
 	}

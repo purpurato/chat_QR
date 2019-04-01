@@ -1,9 +1,0 @@
-{
-    "_id": "_design/business",
-    "language": "javascript",
-    "views": {
-        "getWallet": {
-            "map": "function(doc) {\n\tif(doc.type == \"business\"){\n\t\t  emit(doc.chat_id, doc.wallet);\t\n\t}\n}"
-        }
-    }
-}

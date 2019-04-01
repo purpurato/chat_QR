@@ -1,0 +1,29 @@
+{
+  "name": "chat-qr-transaction",
+  "version": "1.0.0",
+  "description": "Listens to bitcoin network transactions",
+  "main": "index.js",
+  "dependencies": {
+    "underscore": "^1.9.1",
+    "ws": "^6.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "lab -b test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/purpurato/chat_QR.git"
+  },
+  "keywords": [
+    "Bitcoin",
+    "network",
+    "transaction"
+  ],
+  "author": "pupurato_acido@yahoo.com, juanprietob@gmail.com",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/purpurato/chat_QR/issues"
+  },
+  "homepage": "https://github.com/purpurato/chat_QR#readme"
+}
