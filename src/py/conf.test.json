@@ -1,0 +1,17 @@
+{
+	"chat_qr": {
+		"token": "chat_bot_token_here",
+		"rate": {
+			"url": "https://localbitcoins.com/bitcoinaverage/ticker-all-currencies/",
+			"json_keys" : "['COP']['rates']['last']"
+		}
+	},
+	"chat_qr_db" : {
+		"hostname": "http://localhost:5984",
+		"database": "chatqrdb_test"
+	},
+	"chat_qr_transaction" : {
+		"ws": "ws://localhost:8181/inv",
+		"url_tx": "https://www.blockchain.com/btc/tx"
+	}
+}
