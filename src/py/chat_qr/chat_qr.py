@@ -1,48 +1,81 @@
 import qrcode, requests, telegram, logging
 from telegram.ext import Updater, MessageHandler, Filters #CommandHandler
+import threading
+from io import BytesIO
 
-# Users. To be defined, for now just bitcoin address. 
-address = '1DExbZqgmQ2SEBbRrrQb9aAR6RxvrApoGH'
+class ChatQr(threading.Thread):
 
-# Bot info and associated instances
-tkn = '682085125:AAFHd5kEI_BINtisvIxlnwfi8IkyjnvD5xU'
-bot = telegram.Bot(tkn)
-updater = Updater(tkn)
-dispatcher = updater.dispatcher
+    def __init__(self):
+        threading.Thread.__init__(self)
+    
+    def setConfiguration(self, conf):
+        self.conf = conf
 
-# Logs for exceptions
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-level=logging.INFO)
+    def getConfiguration(self):
+        return self.conf
 
-# To be modified in the future if more exchanges operate
-def rate():
-    """Retrieve BTCCOP rate from localbitcoins"""
-    url_lb = 'https://localbitcoins.com/bitcoinaverage/ticker-all-currencies/'
-    get_lb = requests.get(url_lb)
-    ticker = get_lb.json()['COP']['rates']['last']
-    return float(ticker)
+    def setDb(self, db):
+        self.db = db
 
-# QR code creation
-def qr_invoice(invoice_cop, rate):
-    """Returns QR code with price in BTC using rate() """
-    btc_amnt = float(invoice_cop)/rate()
-    btc_amnt = str(btc_amnt)
-    invoice_qr = qrcode.make('bitcoin:' + address + 
-    '?amount=' + str(btc_amnt))
-    invoice_qr.save('Inv.png')
-    #return invoice_qr
+    # To be modified in the future if more exchanges operate
+    def rate(self):
+        try:
+            """Retrieve BTCCOP rate from localbitcoins"""
+            url_lb = 'https://localbitcoins.com/bitcoinaverage/ticker-all-currencies/'
+            get_lb = requests.get(url_lb)
+            ticker = get_lb.json()['COP']['rates']['last']
+            return float(ticker)
+        except Exception as e:
+            print("uploadDocuments", file=sys.stderr)
+            print(e, file=sys.stderr)
+            return 1
 
-def answer_qr(bot, update):
-    """Response to message with QR invoice in bitcoin"""
-    cop_price = update.message.text
-    qr_invoice(cop_price, rate)
-    bot.send_photo(chat_id=update.message.chat_id, 
-    photo=open('Inv.png', 'rb'))
+    def getWalletAddress(self, chat_id):
+        wallet = self.db.getWallet(chat_id)
+        return wallet["address"]
+
+    # QR code creation
+    def getQr(self, chat_id, cop_price):
+        """Returns QR code with price in BTC using rate() """
+
+        address = self.getWalletAddress(chat_id)
+        btc_amnt = float(cop_price)/self.rate()
+        btc_amnt = str(btc_amnt)
+        invoice_qr = qrcode.make('bitcoin:' + address + '?amount=' + str(btc_amnt))
+        bio = BytesIO()
+        bio.name = 'qr.png'
+        invoice_qr.get_image().save(bio, format="png")
+        bio.seek(0)
+        return bio
+
+    def answer(self, update, context):
+        """Response to message with QR invoice in bitcoin"""
+        message = update.message.text
+
+        if message[0] == "$":
+            cop_price = message[1:]
+            qrimg = self.getQr(chat_id=update.message.chat_id, cop_price=cop_price)
+            context.bot.send_photo(chat_id=update.message.chat_id, photo=qrimg)
+        else:
+            print(message)
+
+    def sendMessage(self, message):
+        self.bot.send_message(**message)
+            
+    # Transactions need to be checked if sent 
+    # and response sent to user and to admin. 
+    
+    def run(self):
         
-# Transactions need to be checked if sent 
-# and response sent to user and to admin. 
-    
-answer_qr_handler = MessageHandler(Filters.text, answer_qr)
-dispatcher.add_handler(answer_qr_handler)
-    
-updater.start_polling()
+        # Bot info and associated instances
+        token = self.getConfiguration()["token"]
+        self.bot = telegram.Bot(token)
+        self.updater = Updater(token, use_context=True)
+        self.dispatcher = self.updater.dispatcher
+        
+        # Logs for exceptions
+        logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+        
+        answer_qr_handler = MessageHandler(Filters.text, self.answer)
+        self.dispatcher.add_handler(answer_qr_handler)
+        self.updater.start_polling()

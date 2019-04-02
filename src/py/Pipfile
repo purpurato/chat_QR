@@ -10,7 +10,7 @@ pillow = "*"
 qrcode = "*"
 telegram = "*"
 requests = "*"
-python-telegram-bot = "*"
+websocket-client = "*"
 
 [requires]
 python_version = "3.6"
