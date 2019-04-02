@@ -35,17 +35,36 @@ class ChatQr(threading.Thread):
         wallet = self.db.getWallet(chat_id)
         return wallet["address"]
 
-    # QR code creation
-    def getQrImg(self, chat_id, cop_price):
-        address = self.getWalletAddress(chat_id)
-        btc_amnt = float(cop_price)/self.getRate()
-        btc_amnt = str(btc_amnt)
-        invoice_qr = qrcode.make('bitcoin:' + address + '?amount=' + str(btc_amnt))
+    def getQrImg(self, qr_str):
+        invoice_qr = qrcode.make(qr_str)
         bio = BytesIO()
         bio.name = 'qr.png'
         invoice_qr.get_image().save(bio, format="png")
         bio.seek(0)
         return bio
+    # QR code creation
+    def getQrImgHandler(self, chat_id, cop_price):
+        try:
+            address = self.getWalletAddress(chat_id)
+            btc_rate = self.getRate()
+            btc_amnt = float(cop_price)/btc_rate
+            qr_str = 'bitcoin:' + address + '?amount=' + str(btc_amnt)
+
+            qr_obj = {
+                "chat_id": chat_id
+                "type": "invoice",
+                "qr": qr_str,
+                "rate": btc_rate,
+                "cop": cop_price
+            }
+
+            self.db.uploadDocuments(qr_obj)
+            
+            return self.getQrImg(qr_str)
+        except Exception as e:
+            print("getQrImgHandler", file=sys.stderr)
+            print(e, file=sys.stderr)
+            return None
 
     def messageHandler(self, update, context):
         """Response to message with QR invoice in bitcoin"""
@@ -53,8 +72,9 @@ class ChatQr(threading.Thread):
 
         if message[0] == "$":
             cop_price = message[1:]
-            qrimg = self.getQrImg(chat_id=update.message.chat_id, cop_price=cop_price)
-            context.bot.send_photo(chat_id=update.message.chat_id, photo=qrimg)
+            qrimg = self.getQrImgHandler(chat_id=update.message.chat_id, cop_price=cop_price)
+            if(qrimg is not None):
+                context.bot.send_photo(chat_id=update.message.chat_id, photo=qrimg)
         else:
             print(message)
 

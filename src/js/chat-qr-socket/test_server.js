@@ -32,7 +32,7 @@ wss.on('connection', function connection(ws) {
     if(jsdata.op){
       if(jsdata.op == "blocks_sub"){
         blocks_sub.push(ws);
-      }else(jsdata.op == "addr_sub"){
+      }else if(jsdata.op == "addr_sub"){
         if(addr_sub[jsdata.addr]){
           addr_sub[jsdata.addr].push(ws);  
         }else{
