@@ -16,7 +16,7 @@ import chat_qr_transaction
 
 def main():
 	parser = argparse.ArgumentParser(description='Start the chat qr app', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-	parser.add_argument('--conf', type=str, help='Configuration to run the app', default='conf.json')
+	parser.add_argument('--conf', type=str, help='Configuration to run the app', default='conf.my.production.json')
 	
 	args = parser.parse_args()
 
@@ -31,6 +31,7 @@ def main():
 	chqr.setConfiguration(conf["chat_qr"])
 
 	chqrtrans = chat_qr_transaction.ChatQrTransaction()
+	chqrtrans.setConfiguration(conf["chat_qr_transaction"])
 	chqrtrans.setDb(chqrdb)
 	chqrtrans.setChatQr(chqr)
 

@@ -1,8 +1,6 @@
 import os,sys
-import json
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../couch_provider')))
 import couch_provider
-from urllib.parse import urlencode
 
 class ChatQrDb(couch_provider.CouchProvider):
     def __init__(self):
@@ -14,8 +12,12 @@ class ChatQrDb(couch_provider.CouchProvider):
             key = {
                 "key": chat_id
             }
-            v += '?' + urlencode(key)
-        return [w["value"] for w in self.getView(v)][0]
+            v += '?' + self.getUrlParams(key)
+            chat_ids = [w["value"] for w in self.getView(v)]
+            if(len(chat_ids) > 0):
+                return chat_ids[0]
+            return None
+        return [w["value"] for w in self.getView(v)]
 
     def getWallets(self):
         v = '_design/business/_view/getWallets?include_docs=true';
@@ -27,7 +29,7 @@ class ChatQrDb(couch_provider.CouchProvider):
             key = {
                 "key": chat_id
             }
-            v += '?' + urlencode(key)
+            v += '?' + self.getUrlParams(key)
             transactions = [w["value"] for w in self.getView(v)]
             if len(transactions) > 0:
                 return transactions[0]
@@ -42,6 +44,9 @@ class ChatQrDb(couch_provider.CouchProvider):
                 "key": transaction_hash,
                 "include_docs": True
             }
-            v += '?' + urlencode(key)
-            return [w["doc"] for w in self.getView(v)][0]
+            v += '?' + self.getUrlParams(key)
+            chat_ids = [w["doc"] for w in self.getView(v)]
+            if len(chat_ids) > 0:
+                return chat_ids[0]
+            return None
         return [w["value"] for w in self.getView(v)]

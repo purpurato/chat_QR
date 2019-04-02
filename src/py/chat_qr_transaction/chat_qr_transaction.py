@@ -28,26 +28,35 @@ class ChatQrTransaction(threading.Thread):
     def wsBlocks(self):
 
         def on_block_message(ws, block):
-            
-            inline_keyboard = [[{
-                "text": "View",
-                "callback_data": json.dumps({"th": block.x.hash})
-            }]]
 
-            transaction = self.db.getChatId(block.x.hash)
+            try:
+                block = json.loads(block)
 
-            if transaction is not None:
-                message = {
-                    "chat_id": transaction["chat_id"], 
-                    "text": "Confirmed!",
-                    "reply_markup": json.dumps({ "inline_keyboard": inline_keyboard })
-                }
+                if("x" in block and "hash" in block["x"]):
+                    transaction = self.db.getChatId(block["x"]["hash"])
 
-                transaction["block"] = block
+                    if transaction is not None:
 
-                self.db.uploadDocuments(transaction)
+                        inline_keyboard = [[{
+                            "text": "View",
+                            "url": self.conf["url_tx"] + "/" + block["x"]["hash"]
+                        }]]
 
-                self.chatqr.sendMessage(message)
+                        message = {
+                            "chat_id": transaction["chat_id"], 
+                            "text": "Confirmed!",
+                            "reply_markup": json.dumps({ "inline_keyboard": inline_keyboard })
+                        }
+
+                        transaction["block"] = block
+
+                        self.db.uploadDocuments(transaction)
+
+                        self.chatqr.sendMessage(message)
+
+            except Exception as e:
+                print("on_block_message", file=sys.stderr)
+                print(e, file=sys.stderr)
             
 
         def on_block_error(ws, error):
@@ -58,9 +67,9 @@ class ChatQrTransaction(threading.Thread):
             print("### on_block_close ###")
 
         def on_block_open(ws):
-            ws.send(json.dumps({"op":"unconfirmed_sub"}))
+            ws.send(json.dumps({"op":"blocks_sub"}))
         
-        ws = websocket.WebSocketApp("wss://ws.blockchain.info/inv",
+        ws = websocket.WebSocketApp(self.conf["ws"],
                                   on_message = on_block_message,
                                   on_error = on_block_error,
                                   on_close = on_block_close)
@@ -72,6 +81,9 @@ class ChatQrTransaction(threading.Thread):
         def wsWallet(wallet):
             
             def on_wallet_message(ws, transaction):
+
+                transaction = json.loads(transaction)
+
                 trans = {
                     "chat_id": wallet["chat_id"], 
                     "transaction": transaction,
@@ -82,7 +94,7 @@ class ChatQrTransaction(threading.Thread):
 
                 inline_keyboard = [[{
                     "text": "View",
-                    "callback_data": json.dumps({"th": transaction.x.hash})
+                    "url": self.conf["url_tx"] + "/" + transaction["x"]["hash"]
                 }]]
 
                 message = {
@@ -104,7 +116,7 @@ class ChatQrTransaction(threading.Thread):
                 print("Wallet sub:", wallet["wallet"]["address"])
                 ws.send(json.dumps({"op":"addr_sub", "addr": wallet["wallet"]["address"]}))
             
-            ws = websocket.WebSocketApp("wss://ws.blockchain.info/inv",
+            ws = websocket.WebSocketApp(self.conf["ws"],
                                       on_message = on_wallet_message,
                                       on_error = on_wallet_error,
                                       on_close = on_wallet_close)
@@ -113,14 +125,16 @@ class ChatQrTransaction(threading.Thread):
 
         wallets = self.db.getWallets()
         wallet_threads = []
+
         for w in wallets:
             if "chat_id" in w and "wallet" in w and "address" in w["wallet"]:
                 thread_wallet = Thread(target = wsWallet, args=[w])
-                thread_wallet.start()
                 wallet_threads.append(thread_wallet)
 
-        for t in wallet_threads:
-            t.join()
+                thread_wallet.start()
+                
+        for th in wallet_threads:
+            th.join()
     
     def run(self):
         

@@ -1,0 +1,9 @@
+{
+	"business": [{
+		"chat_id": 773570272,
+		"type": "business",
+		"wallet": {
+			"address": "thisisatestaddress"
+		}
+	}]
+}

@@ -6,7 +6,7 @@
             "map": "function(doc) {\n\tif(doc.type == \"business\"){\n\t\t  emit(doc.chat_id, doc.wallet);\t\n\t}\n}"
         },
         "getTransactions": {
-            "map": "function(doc) {\n\tif(doc.type == \"transaction\"){\n\t\t  emit(doc.chat_id, {qr_string: doc.qr_string, data: doc.date});\t\n\t}\n}"
+            "map": "function(doc) {\n\tif(doc.type == \"transaction\" && doc.transaction){\n\t\t  emit(doc.chat_id, doc.transaction);\t\n\t}\n}"
         }
     }
 }

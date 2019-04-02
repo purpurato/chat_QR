@@ -18,15 +18,16 @@ class ChatQr(threading.Thread):
         self.db = db
 
     # To be modified in the future if more exchanges operate
-    def rate(self):
+    def getRate(self):
         try:
             """Retrieve BTCCOP rate from localbitcoins"""
-            url_lb = 'https://localbitcoins.com/bitcoinaverage/ticker-all-currencies/'
+            url_lb = self.conf["rate"]["url"]
             get_lb = requests.get(url_lb)
-            ticker = get_lb.json()['COP']['rates']['last']
-            return float(ticker)
+            ticker = get_lb.json()
+            cop_rate = eval("ticker" + self.conf["rate"]["json_keys"])
+            return float(cop_rate)
         except Exception as e:
-            print("uploadDocuments", file=sys.stderr)
+            print("getRate", file=sys.stderr)
             print(e, file=sys.stderr)
             return 1
 
@@ -35,11 +36,9 @@ class ChatQr(threading.Thread):
         return wallet["address"]
 
     # QR code creation
-    def getQr(self, chat_id, cop_price):
-        """Returns QR code with price in BTC using rate() """
-
+    def getQrImg(self, chat_id, cop_price):
         address = self.getWalletAddress(chat_id)
-        btc_amnt = float(cop_price)/self.rate()
+        btc_amnt = float(cop_price)/self.getRate()
         btc_amnt = str(btc_amnt)
         invoice_qr = qrcode.make('bitcoin:' + address + '?amount=' + str(btc_amnt))
         bio = BytesIO()
@@ -48,20 +47,22 @@ class ChatQr(threading.Thread):
         bio.seek(0)
         return bio
 
-    def answer(self, update, context):
+    def messageHandler(self, update, context):
         """Response to message with QR invoice in bitcoin"""
         message = update.message.text
 
         if message[0] == "$":
             cop_price = message[1:]
-            qrimg = self.getQr(chat_id=update.message.chat_id, cop_price=cop_price)
+            qrimg = self.getQrImg(chat_id=update.message.chat_id, cop_price=cop_price)
             context.bot.send_photo(chat_id=update.message.chat_id, photo=qrimg)
         else:
             print(message)
 
     def sendMessage(self, message):
         self.bot.send_message(**message)
-            
+
+    def sendPhoto(self, message):
+        self.bot.send_message(**message)            
     # Transactions need to be checked if sent 
     # and response sent to user and to admin. 
     
@@ -76,6 +77,6 @@ class ChatQr(threading.Thread):
         # Logs for exceptions
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
         
-        answer_qr_handler = MessageHandler(Filters.text, self.answer)
+        answer_qr_handler = MessageHandler(Filters.text, self.messageHandler)
         self.dispatcher.add_handler(answer_qr_handler)
         self.updater.start_polling()

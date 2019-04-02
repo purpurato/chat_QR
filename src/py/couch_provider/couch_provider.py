@@ -1,6 +1,9 @@
 
 import requests
 import sys
+import json
+from urllib.parse import urlencode
+
 
 class CouchProvider():
 	def __init__(self):
@@ -35,7 +38,7 @@ class CouchProvider():
 	 			alldocs["docs"] = [docs]
 
 	 		uri =  self.getCouchDBServer() + "/_bulk_docs"
-	 		r = request.post(uri, json=alldocs)
+	 		r = requests.post(uri, json=alldocs)
 
 	 		resp = r.json()
 	 	except Exception as e:
@@ -73,3 +76,6 @@ class CouchProvider():
 		except Exception as e:
 			print("getView", file=sys.stderr)
 			print(e, file=sys.stderr)
+
+	def getUrlParams(self, params):
+		return urlencode({p: json.dumps(params[p]) for p in params})
