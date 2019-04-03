@@ -1,4 +1,4 @@
-import qrcode, requests, telegram, logging
+import qrcode, requests, telegram, logging, sys
 from telegram.ext import Updater, MessageHandler, Filters #CommandHandler
 import threading
 from io import BytesIO
@@ -51,8 +51,8 @@ class ChatQr(threading.Thread):
             qr_str = 'bitcoin:' + address + '?amount=' + str(btc_amnt)
 
             qr_obj = {
-                "chat_id": chat_id
-                "type": "invoice",
+                "chat_id": chat_id, 
+                "type": "invoice", 
                 "qr": qr_str,
                 "rate": btc_rate,
                 "cop": cop_price
