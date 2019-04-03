@@ -1,0 +1,28 @@
+{
+  "name": "chat-qr-socket",
+  "version": "1.0.0",
+  "description": "Creates a socket server for testing",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juanprietob/chat_QR.git"
+  },
+  "keywords": [
+    "Socket",
+    "bitcoin"
+  ],
+  "author": "juanprietob@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/juanprietob/chat_QR/issues"
+  },
+  "homepage": "https://github.com/juanprietob/chat_QR#readme",
+  "dependencies": {
+    "underscore": "^1.9.1",
+    "ws": "^6.2.1"
+  }
+}
