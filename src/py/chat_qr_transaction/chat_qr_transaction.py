@@ -62,9 +62,13 @@ class ChatQrTransaction(threading.Thread):
         def on_block_error(ws, error):
             print("on_block_error", file=sys.stderr)
             print(error, file=sys.stderr)
+            print("Starting socket again...")
+            self.wsBlocks()
 
         def on_block_close(ws):
             print("### on_block_close ###")
+            print("Starting socket again...")
+            self.wsBlocks()
 
         def on_block_open(ws):
             ws.send(json.dumps({"op":"blocks_sub"}))
