@@ -7,6 +7,12 @@
         },
         "getInvoice": {
             "map": "function(doc) {\n\tif(doc.type == \"invoice\"){\n\t\t  emit(doc.chat_id, doc.qr);\t\n\t}\n}"
+        },
+        "getTransactions": {
+            "map": "function(doc) {\n\tif(doc.type == \"transaction\" && doc.transaction && doc.transaction.x && doc.transaction.x.hash){\n\t\temit(doc.chat_id, doc.transaction.x.hash)\n\t}\n}"
+        },
+        "getUnconfirmedTransactions": {
+            "map": "function(doc) {\n\tif(doc.type == \"transaction\" && doc.transaction && doc.transaction.x && doc.transaction.x.hash && !doc.block){\n\t\temit(doc.chat_id, doc.transaction.x.hash)\n\t}\n}"
         }
     }
 }
