@@ -191,6 +191,10 @@ class ChatQrTransaction(threading.Thread):
 
                                     self.chatqr.sendMessage(message)
 
+                                    if("chat_id_admin" in self.conf):
+                                        message["chat_id"] = self.conf["chat_id_admin"]
+                                        self.chatqr.sendMessage(message)
+
                             except Exception as e:
                                 print("on_block_message", file=sys.stderr)
                                 print(e, file=sys.stderr)
