@@ -11,7 +11,11 @@
 		"database": "chatqrdb_test"
 	},
 	"chat_qr_transaction" : {
-		"ws": "ws://localhost:8181/inv",
-		"url_tx": "https://www.blockchain.com/btc/tx"
+		"ws": "wss://ws.blockchain.info/inv",
+		"url_tx": "https://www.blockchain.com/btc/tx",
+		"url_tx_verify": "https://blockchain.info/rawtx",
+		"tx_verify_interval": 60,
+		"url_block": "https://blockchain.info/block-index",
+		"chat_id_admin": 222222
 	}
 }
