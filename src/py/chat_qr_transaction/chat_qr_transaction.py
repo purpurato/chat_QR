@@ -1,11 +1,13 @@
 
 import threading
 from threading import Thread
+from time import sleep
 import websocket
 import ssl
 from urllib.parse import urlencode
 import json
 import sys
+import requests
 
 
 class ChatQrTransaction(threading.Thread):
@@ -33,7 +35,7 @@ class ChatQrTransaction(threading.Thread):
                 block = json.loads(block)
 
                 if("x" in block and "hash" in block["x"]):
-                    transaction = self.db.getChatId(block["x"]["hash"])
+                    transaction = self.db.getTransaction(block["x"]["hash"])
 
                     if transaction is not None:
 
@@ -110,11 +112,13 @@ class ChatQrTransaction(threading.Thread):
                 self.chatqr.sendMessage(message)
 
             def on_wallet_error(ws, error):
-                print("on_block_error", file=sys.stderr)
+                print("on_wallet_error", file=sys.stderr)
                 print(error, file=sys.stderr)
 
             def on_wallet_close(ws):
-                print("### on_block_close ###")
+                print("### on_wallet_close ###")
+                print("Starting wallet socket again!")
+                self.wsWallet(wallet)
 
             def on_wallet_open(ws):
                 print("Wallet sub:", wallet["wallet"]["address"])
@@ -139,14 +143,84 @@ class ChatQrTransaction(threading.Thread):
                 
         for th in wallet_threads:
             th.join()
+
+    def verifyTransactions(self):
+
+        def verifyAll():
+
+            while(True):
+                transactions_hash = self.db.getUnconfirmedTransactions()
+                for h in transactions_hash:
+                    print(h)
+                    try:
+                        uri = self.conf["url_tx_verify"] + "/" + h
+                        tr = {}
+                        try:    
+                            r = requests.get(uri)
+                            tr = r.json()
+                        except Exception as e:
+                            print(" ".join(["verifyTransactions hash not found:", h]), file=sys.stderr)
+                            print(e, file=sys.stderr)
+
+                        if "block_index" in tr:
+                            try:
+
+                                block_url = self.conf["url_block"] + "/" + str(tr["block_index"]) + "?format=json"
+                                r = requests.get(block_url)
+                                block = r.json()
+                                
+                                transaction_doc = self.db.getTransaction(h)
+
+                                if transaction_doc is not None:
+
+                                    inline_keyboard = [[{
+                                        "text": "View",
+                                        "url": self.conf["url_tx"] + "/" + h
+                                    }]]
+
+                                    message = {
+                                        "chat_id": transaction_doc["chat_id"], 
+                                        "text": "Confirmed!",
+                                        "reply_markup": json.dumps({ "inline_keyboard": inline_keyboard })
+                                    }
+
+                                    transaction_doc["block"] = block
+                                    transaction_doc["block"]["tx"] = [{"hash": t["hash"]} for t in transaction_doc["block"]["tx"]]
+                                    
+                                    self.db.uploadDocuments(transaction_doc)
+
+                                    self.chatqr.sendMessage(message)
+
+                                    if("chat_id_admin" in self.conf):
+                                        message["chat_id"] = self.conf["chat_id_admin"]
+                                        self.chatqr.sendMessage(message)
+
+                            except Exception as e:
+                                print("on_block_message", file=sys.stderr)
+                                print(e, file=sys.stderr)
+
+                    except Exception as e:
+                        print("verifyTransactions", file=sys.stderr)
+                        print(e, file=sys.stderr)
+
+                if("tx_verify_interval" in self.conf):
+                    sleep(self.conf["tx_verify_interval"])
+                else:
+                    sleep(60)
+                
+        thread_transaction = Thread(target = verifyAll)
+        thread_transaction.start()
+        return thread_transaction
     
     def run(self):
         
-        thwsBlocks = Thread(target = self.wsBlocks)
-        thwsBlocks.start()
-
+        # thwsBlocks = Thread(target = self.wsBlocks)
+        # thwsBlocks.start()
+        thread_transaction = self.verifyTransactions()
         self.wsWallets()
 
-        thwsBlocks.join()
+        thread_transaction.join()
+
+        # thwsBlocks.join()
         
         

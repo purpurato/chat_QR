@@ -30,23 +30,42 @@ class ChatQrDb(couch_provider.CouchProvider):
                 "key": chat_id
             }
             v += '?' + self.getUrlParams(key)
-            transactions = [w["value"] for w in self.getView(v)]
+        return [w["value"] for w in self.getView(v)]
+
+    def getUnconfirmedTransactions(self, chat_id = None):
+        v = '_design/business/_view/getUnconfirmedTransactions';
+        if chat_id:
+            key = {
+                "key": chat_id
+            }
+            v += '?' + self.getUrlParams(key)
+        return [w["value"] for w in self.getView(v)]
+
+    def getTransaction(self, transaction_hash):
+        if transaction_hash:
+            v = '_design/transactions/_view/getChatId';
+            key = {
+                "key": transaction_hash,
+                "include_docs": True
+            }
+            v += '?' + self.getUrlParams(key)
+            transactions = [w["doc"] for w in self.getView(v)]
+
             if len(transactions) > 0:
                 return transactions[0]
-            return None
-        return [w["value"] for w in self.getView(v)]
+        return None
 
     def getChatId(self, transaction_hash):
         v = '_design/transactions/_view/getChatId';
         
         if transaction_hash:
             key = {
-                "key": transaction_hash,
-                "include_docs": True
+                "key": transaction_hash
             }
             v += '?' + self.getUrlParams(key)
-            chat_ids = [w["doc"] for w in self.getView(v)]
+            chat_ids = [w["value"] for w in self.getView(v)]
             if len(chat_ids) > 0:
                 return chat_ids[0]
             return None
         return [w["value"] for w in self.getView(v)]
+    
