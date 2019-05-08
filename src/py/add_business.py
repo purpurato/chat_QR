@@ -22,7 +22,7 @@ def main():
 	args = parser.parse_args()
 
 	with open(args.data, 'r') as jsonfile:
-		test_data = json.loads(jsonfile.read())
+		business_data = json.loads(jsonfile.read())
 
 	with open(args.conf, 'r') as jsonfile:
 		conf = json.loads(jsonfile.read())
@@ -38,10 +38,10 @@ def main():
 	w = chqrdb.getWallets()
 	print(w)
 
-	for td in test_data["business"]:
-		w = chqrdb.getWallet(td["chat_id"])
+	for business in business_data:
+		w = chqrdb.getWallet(business["chat_id"])
 		if(w is None):
-			chqrdb.uploadDocuments(td)
+			chqrdb.uploadDocuments(business)
 
 	print("get all wallets")
 	w = chqrdb.getWallets()
