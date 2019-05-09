@@ -48,6 +48,7 @@ class ChatQr(threading.Thread):
             address = self.getWalletAddress(chat_id)
             btc_rate = self.getRate()
             btc_amnt = float(cop_price)/btc_rate
+            btc_amnt = '{0:.8f}'.format(btc_amnt)
             qr_str = 'bitcoin:' + address + '?amount=' + str(btc_amnt)
 
             qr_obj = {
