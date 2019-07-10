@@ -31,18 +31,18 @@ module.exports = function(server, conf){
 
 			var that = this;
 
-			Promise.all([server.methods.getWallet(message.chat.id), that.getRate()])
+			Promise.all([server.methods.getNewAddress(message.chat.id), that.getRate()])
 			.then(function(res){
-				var wallet = res[0][0];
+				var address = res[0];
 				var rate = res[1];
 				var invoice = Number.parseFloat(message.text.substring(1));
 
-				console.log(wallet, rate, invoice);
+				console.log(address, rate, invoice);
 				var amount = {
 					amount: invoice/rate
 				}
 
-				var qr_string = 'bitcoin:' + wallet.address + "?" + qs.stringify(amount);
+				var qr_string = 'bitcoin:' + address + "?" + qs.stringify(amount);
 				var qr_png = qr.image(qr_string, { type: 'png' });
 				qr_png.path = String(message.chat.id) + ".png";
 
