@@ -1,0 +1,21 @@
+{
+  "name": "bitcoin-lib",
+  "version": "1.0.0",
+  "description": "bitcoin, bitcoin-cli",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "bitcoin",
+    "bitcoin-cli"
+  ],
+  "author": "jprieto@medimg-ai.com",
+  "license": "MIT",
+  "dependencies": {
+    "bitcoin-core": "^2.2.0",
+    "bluebird": "^3.5.5",
+    "prompt": "^1.0.0",
+    "underscore": "^1.9.1"
+  }
+}

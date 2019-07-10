@@ -1,0 +1,20 @@
+{
+  "name": "bitcoin-app",
+  "version": "1.0.0",
+  "description": "Utility using the bitcoin-lib",
+  "main": "index.js",
+  "scripts": {
+    "test": "lab -v test.js"
+  },
+  "keywords": [
+    "bitcoin-core"
+  ],
+  "author": "jprieto@medimg-ai.com",
+  "license": "MIT",
+  "dependencies": {
+    "bitcoin-lib": "file:../bitcoin-lib",
+    "bluebird": "^3.5.5",
+    "chat-qr-lib": "file:../chat-qr-lib",
+    "minimist": "^1.2.0"
+  }
+}
