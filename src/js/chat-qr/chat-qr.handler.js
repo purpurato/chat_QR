@@ -29,37 +29,38 @@ module.exports = function(server, conf){
 
 		sendQrPicture(message){
 
-			var that = this;
+			const self = this;
 
-			Promise.all([server.methods.getNewAddress(message.chat.id), that.getRate()])
+			Promise.all([server.methods.getNewAddress(message.chat.id), self.getRate()])
 			.then(function(res){
 				var address = res[0];
+				
 				var rate = res[1];
 				var invoice = Number.parseFloat(message.text.substring(1));
-
-				console.log(address, rate, invoice);
+				
 				var amount = {
-					amount: invoice/rate
+					amount: (invoice/rate).toFixed(8)
 				}
 
 				var qr_string = 'bitcoin:' + address + "?" + qs.stringify(amount);
 				var qr_png = qr.image(qr_string, { type: 'png' });
 				qr_png.path = String(message.chat.id) + ".png";
 
-
 				var transaction_doc = {
-					type: "transaction",
-					qr_string: qr_string,
+					_id: address,
+					type: "invoice",
 					chat_id: message.chat.id,
+					qr_string: qr_string,
 					date: Date.now(),
 					status: "CREATED", 
 					rate: rate, 
-					invoice: invoice
+					invoice: invoice,
+					value: amount.amount,
 				}
 
 				return server.methods.couchprovider.uploadDocuments([transaction_doc])
 				.then(function(res){
-					var transaction_id = res[0].id;
+					
 					return server.methods.sendPhoto({
 						chat_id: message.chat.id,
 						photo: qr_png
@@ -67,17 +68,25 @@ module.exports = function(server, conf){
 					.then(function(){
 						return server.methods.sendMessage({
 							chat_id: message.chat.id,
-							text: "Action items",
+							text: qr_string
+						});
+					})
+					.then(function(){
+						return server.methods.sendMessage({
+							chat_id: message.chat.id,
+							text: "Change address type",
 							reply_markup: JSON.stringify({
 								inline_keyboard: [[{
-									text: "Ok",
+									text: "bech32",
 									callback_data: JSON.stringify({
-										"ot": transaction_id
+										"id": address,
+										"type": "bech32"
 									})
 								}, {
-									text: "Cancel",
+									text: "legacy",
 									callback_data: JSON.stringify({
-										"ct": transaction_id
+										"id": address,
+										"type": "legacy"
 									})
 								}]]
 							})
