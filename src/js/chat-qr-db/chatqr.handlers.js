@@ -68,12 +68,11 @@ module.exports = function (server, conf) {
 		return server.methods.couchprovider.uploadDocuments(business);
 	}
 
-	const updateInvoice = function(txout){
-		const {scriptPubKey} = txout;
-		const txid = txout._id;
+	const updateInvoice = function(txid, vout){
+		const {scriptPubKey} = vout;
 
 		if(scriptPubKey && scriptPubKey.addresses){
-			return Promise.map(txout.scriptPubKey.addresses, function(address){
+			return Promise.map(scriptPubKey.addresses, function(address){
 				var v = '_design/business/_view/getCreatedInvoice';
 
 				var key = {
@@ -177,9 +176,11 @@ module.exports = function (server, conf) {
 			
 		})
 		.catch(function(res){
-			return updateInvoice(txout)
-			.then(function(){
-				return txout;
+			return Promise.map(txout.vout, function(vout){
+				return updateInvoice(txout._id, vout)
+				.then(function(){
+					return txout;
+				});
 			});
 		})
 		.then(function(txout){
