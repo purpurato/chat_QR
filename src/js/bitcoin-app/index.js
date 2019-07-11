@@ -40,7 +40,7 @@ if(argv["txid"] !== undefined){
         return chatqrlib.start(chatqrlibconfig);
     })
     .then(function(){
-        return bitlib.gettxout([transactionid, 0]);
+        return bitlib.getrawtransaction([transactionid, true]);
     })
     .then(function(res){
         if(res && res.result){
