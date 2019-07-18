@@ -39,7 +39,7 @@ module.exports = function(server, conf){
 				var invoice = Number.parseFloat(message.text.substring(1));
 				
 				var amount = {
-					amount: (invoice/rate).toFixed(8)
+					amount: Number.parseFloat((invoice/rate).toFixed(8))
 				}
 
 				var qr_string = 'bitcoin:' + address + "?" + qs.stringify(amount);
