@@ -59,6 +59,21 @@ module.exports = function (server, conf) {
 
 		return bitlib.createwallet([wallet.wallet_name, wallet.disable_private_keys, wallet.blank]);
 	}
+
+	/*
+	*/
+	handler.loadWallets = function(req, rep){
+		
+		var credentials = req.auth.credentials;
+
+		return bitlib.listwalletdir()
+		.then(function(res){
+			var {wallets} = res.result;
+			return Promise.map(wallets, function(wallet){
+				return bitlib.loadwallet([wallet.name]);
+			})
+		})
+	}
 	
 
 	return handler;

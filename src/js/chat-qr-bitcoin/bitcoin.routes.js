@@ -69,4 +69,22 @@ module.exports = function (server, conf) {
 	    }
 	});
 
+
+	server.route({
+		method: 'PUT',
+		path: "/node/wallets/load",
+		config: {
+			auth: {
+                strategy: 'token',
+                scope: ['admin']
+            },
+			handler: handlers.loadWallets,
+			validate: {
+			  	query: false,
+			    params: null,
+			    payload: false
+			},
+			description: 'Load all wallets in the node'
+	    }
+	});
 }

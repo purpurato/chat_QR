@@ -492,8 +492,8 @@ class BitcoinLib {
 	listwallets(wallet, params){
 		return this.executeMethod("listwallets", params, "/wallet/" + wallet);
 	}
-	loadwallet(wallet, params){
-		return this.executeMethod("loadwallet", params, "/wallet/" + wallet);
+	loadwallet(params){
+		return this.executeMethod("loadwallet", params);
 	}
 	lockunspent(wallet, params){
 		return this.executeMethod("lockunspent", params, "/wallet/" + wallet);
