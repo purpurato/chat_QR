@@ -16,11 +16,25 @@ export default class ChatQrService{
     });
   }
 
+  getBusiness(chat_id) {
+    return this.http({
+      method: 'GET',
+      url: '/business/' + chat_id
+    });
+  }
+
   createBusiness(business) {
     return this.http({
       method: 'POST',
       url: '/business',
       data: business
+    });
+  }
+
+  getInvoices(){
+    return this.http({
+      method: 'GET',
+      url: '/invoices'
     });
   }
   

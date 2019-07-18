@@ -50,8 +50,6 @@ class Business extends Component{
     const {newBusiness, businesses} = self.state;
 
     event.preventDefault();
-
-    console.log(newBusiness);
     
     self.chatqrservice.createBusiness(newBusiness)
     .then(function(){
@@ -81,26 +79,26 @@ class Business extends Component{
       return (<tr>
           <td>{b.name}</td>
           <td>{b.chat_id}</td>
+          <td>{b.wallet.wallet_name}</td>
         </tr>);
     })
 
     return (
       <Card>
+        <Card.Header as="h5" style={{padding: 0}}><Alert variant="info" style={{marginBottom: 0}}>Business</Alert></Card.Header>
         <Card.Body>
-          <Card.Title><Alert variant="info">Business</Alert></Card.Title>
-          <Card.Text>
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Chat Id</th>
-                </tr>
-              </thead>
-              <tbody>
-                {business_items}
-              </tbody>
-            </Table>
-          </Card.Text>
+          <Table striped bordered hover variant="dark">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Chat Id</th>
+                <th>Wallet</th>
+              </tr>
+            </thead>
+            <tbody>
+              {business_items}
+            </tbody>
+          </Table>
         </Card.Body>
       </Card>
       );

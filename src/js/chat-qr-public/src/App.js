@@ -3,14 +3,16 @@ import { Route, HashRouter } from 'react-router-dom';
 
 import "./custom.scss"
 
-import {JWTAuth, JWTAuthInterceptor, JWTAuthUsers, JWTAuthProfile, JWTAuthService} from 'react-jwt-auth';
+import {JWTAuth, JWTAuthInterceptor, JWTAuthUsers, JWTAuthProfile, JWTAuthService} from 'react-hapi-jwt-auth';
 import Business from './business'
+import Invoices from './invoices'
 import NavBar from './nav-bar'
 import Carousel from 'react-bootstrap/Carousel';
 import Image from 'react-bootstrap/Image'
 import Modal from 'react-bootstrap/Modal';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Card from 'react-bootstrap/Card';
 
 import axios from 'axios';
 import store from "./redux/store";
@@ -119,7 +121,7 @@ class App extends Component {
     return (
       <Container>
         
-          BITCOP
+          <Invoices/>
         
       </Container>);
   }
@@ -130,35 +132,25 @@ class App extends Component {
       <Container>
         <Row>
           <Col sm={8}>
-            <Carousel>
-              <Carousel.Item>
-                <Image src="/images/icosahedron.png" fluid/>
-                <Carousel.Caption>
-                  <h3>3D modeling and visualization</h3>
-                </Carousel.Caption>
-              </Carousel.Item>
-              <Carousel.Item>
-                <Image src="/images/fibers.png" fluid/>
-                <Carousel.Caption>
-                  <h3>High performance computing</h3>
-                </Carousel.Caption>
-              </Carousel.Item>
-              <Carousel.Item>
-                <Image src="/images/segmentation.png" fluid/>
-                <Carousel.Caption>
-                  <h3>Automated image processing</h3>
-                </Carousel.Caption>
-              </Carousel.Item>
-              <Carousel.Item>
-                <Image src="/images/subcortical.png" fluid/>
-                <Carousel.Caption>
-                  <h3>Data storage and retrieval</h3>
-                </Carousel.Caption>
-              </Carousel.Item>
-            </Carousel>
+            <Image src="/icons/logo.png" fluid />
           </Col>
           <Col sm={4}>
-            Our mission is to provide the resources for storage and computation for your organization
+            <Card>
+              <Card.Body>
+                <Card.Title class='alert alert-primary'>Bitcoin</Card.Title>
+                <Card.Text>
+                  Accept bitcoin payments with our Telegram application. We will give you COP.
+                </Card.Text>
+              </Card.Body>
+            </Card>
+            <Card>
+              <Card.Body>
+                <Card.Title class='alert alert-primary'>Market analysis</Card.Title>
+                <Card.Text>
+                  With our customized AI models. We can give you insight into your local markets to grow your business.
+                </Card.Text>
+              </Card.Body>
+            </Card>
           </Col>
         </Row>
       </Container>);

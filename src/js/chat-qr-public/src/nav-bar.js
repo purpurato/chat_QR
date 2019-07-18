@@ -62,16 +62,23 @@ class NavBar extends Component{
     }
   }
 
+  getHome(){
+    const {user} = this.props;
+    if(user && user.scope){
+      return (<Nav.Link><Link class="nav-link" to="/home"><Home/> Home</Link></Nav.Link>)
+    }
+  }
+
   render() {
     const self = this;
     const {user} = self.props;
 
     return (<Navbar bg="primary" expand="lg">
-      <Navbar.Brand href="#/home">BitCop</Navbar.Brand>
+      <Navbar.Brand href="#/">Bit2Cash</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="mr-auto">
-          <Nav.Link><Link class="nav-link" to="/home"><Home/> Home</Link></Nav.Link>
+          {self.getHome()}
           {self.getComputing()}
           {self.getSettings()}
           <Nav.Link>
