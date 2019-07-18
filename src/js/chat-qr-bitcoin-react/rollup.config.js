@@ -10,7 +10,7 @@ import pkg from './package.json'
 
 export default {
   input: 'src/index.js',
-  external: ['react-redux', 'react-router-dom', 'react-feather', 'underscore'],
+  external: ['react-redux', 'react-router-dom', 'react-feather', 'underscore', 'react-bootstrap'],
   output: [
     {
       file: pkg.main,

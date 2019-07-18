@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {withRouter} from 'react-router-dom';
-import {CreditCard, PlusSquare, Check} from 'react-feather';
+import {CreditCard, PlusSquare, Check, BookOpen} from 'react-feather';
 import BitcoinService from './service'
 import _ from 'underscore';
 import {Container, Row, Col, Card, Table, Button, ButtonToolbar, Alert, Form} from 'react-bootstrap';
@@ -30,6 +30,11 @@ class Wallets extends Component{
   componentDidMount(){
     const self = this;
 
+    self.getWallets();
+  }
+
+  getWallets(){
+    const self = this;
     self.bitcoin.getWallets()
     .then(function(res){
       var wallets = res.data;
@@ -77,7 +82,7 @@ class Wallets extends Component{
     .catch(alert)
   }
 
-  getWallets(){
+  getWalletsView(){
     const {wallets} = this.state;
     var total = 0;
     var wallet_items = _.map(wallets, function(w){
@@ -90,27 +95,25 @@ class Wallets extends Component{
 
     return (
       <Card>
+        <Card.Header as="h5" style={{padding: 0}}><Alert variant="info" style={{marginBottom: 0}}>Wallets</Alert></Card.Header>
         <Card.Body>
-          <Card.Title><Alert variant="info">Wallets</Alert></Card.Title>
-          <Card.Text>
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Balance</th>
-                </tr>
-              </thead>
-              <tbody>
-                {wallet_items}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <th>Total:</th>
-                  <th>{total}</th>
-                </tr>
-              </tfoot>
-            </Table>
-          </Card.Text>
+          <Table striped bordered hover variant="dark">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {wallet_items}
+            </tbody>
+            <tfoot>
+              <tr>
+                <th>Total:</th>
+                <th>{total}</th>
+              </tr>
+            </tfoot>
+          </Table>
         </Card.Body>
       </Card>
       );
@@ -156,6 +159,14 @@ class Wallets extends Component{
       );
   }
 
+  loadWallets(){
+    const self = this;
+    self.bitcoin.loadWallets()
+    .then(function(res){
+      return self.getWallets();
+    })
+  }
+
   render() {
     const self = this;
     const {user} = self.props;
@@ -166,7 +177,7 @@ class Wallets extends Component{
     if(viewAddWallet){
       walletsView = self.getAddNewWallet();
     }else{
-      walletsView = self.getWallets();
+      walletsView = self.getWalletsView();
     }
 
     return (<Container>
@@ -174,6 +185,7 @@ class Wallets extends Component{
           <ButtonToolbar>
             <Button variant="primary" onClick={()=>{self.setViewAddWallet(false)}}><CreditCard/></Button>
             <Button variant="primary" onClick={()=>{self.setViewAddWallet(true)}}><PlusSquare/></Button>
+            <Button variant="primary" onClick={()=>{self.loadWallets()}}><BookOpen/></Button>
           </ButtonToolbar>
         </Row>
         <Row>

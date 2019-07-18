@@ -30,4 +30,11 @@ export default class BitcoinService{
       url: '/node/wallet/' + wallet + '/balance'
     });
   }
+
+  loadWallets(){
+    return this.http({
+      method: 'PUT',
+      url: '/node/wallets/load'
+    });
+  }
 }
