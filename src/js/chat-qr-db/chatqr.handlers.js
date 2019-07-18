@@ -63,6 +63,29 @@ module.exports = function (server, conf) {
 
 	/*
 	*/
+	handler.getBusiness = function(req, rep){
+		
+		const {chat_id} = req.params;
+		
+		var key = {
+			include_docs: true,
+			key: '"' + chat_id + '"'
+		}
+
+		var v = '_design/business/_view/getWallets';
+		v += '?' + qs.stringify(key);
+		
+		return server.methods.couchprovider.getView(v)
+		.then(function(res){
+			return _.pluck(res, 'doc')[0];
+		})
+		.catch(function(err){
+			return Boom.notFound(err);
+		});
+	}
+
+	/*
+	*/
 	handler.createBusiness = function(req, rep){
 		const business = req.payload;
 		return server.methods.couchprovider.uploadDocuments(business);
@@ -150,6 +173,69 @@ module.exports = function (server, conf) {
 			})
 			
 		});
+	}
+
+	const getChatIdByEmail = function(credentials){
+		return new Promise(function(resolve, reject){
+			var v = '_design/business/_view/getChatIdByEmail';
+
+			var key = {
+				key: credentials.email
+			}
+
+			v += '?' + qs.stringify(key);
+			
+			return server.methods.couchprovider.getView(v)
+			.then(function(res){
+				return _.pluck(res, 'value');
+			})
+		})
+	}
+
+	handler.getInvoices = function(req, rep){
+
+		const {credentials} = req.auth;
+		const {scope} = credentials;
+
+		var keys_prom;
+
+		if(scope.indexOf('admin') == -1){
+			return getChatIdByEmail(credentials)
+			.then(function(chat_ids){
+
+				return _.map(chat_ids, function(chat_id){
+					return {
+						include_docs: true,
+						key: chat_id
+					}
+				});
+			})
+			.then(function(keys){
+				return Promise.map(keys, function(key){
+					var v = '_design/business/_view/getInvoice';
+					v += '?' + qs.stringify(key);
+					
+					return server.methods.couchprovider.getView(v)
+					.then(function(res){
+						return {[key.key]: _.pluck(res, 'doc')};
+					});
+				});
+			})
+			.catch(function(err){
+				return Boom.notFound(err);
+			});
+		}else{
+			var key = {
+				include_docs: true
+			}
+			var v = '_design/business/_view/getInvoice';
+			v += '?' + qs.stringify(key);
+			
+			return server.methods.couchprovider.getView(v)
+			.then(function(res){
+				return _.groupBy(_.pluck(res, 'doc'), 'chat_id');
+			});
+		}
 	}
 	
 

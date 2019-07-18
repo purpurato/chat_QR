@@ -47,25 +47,46 @@ module.exports = function (server, conf) {
 		}
 	});
 
-	// server.route({
-	// 	method: 'GET',
-	// 	path: "/node/wallet/{wallet}/balance",
-	// 	config: {
-	// 		auth: {
- //                strategy: 'token',
- //                scope: ['admin']
- //            },
-	// 		handler: handlers.getBalance,
-	// 		validate: {
-	// 		  	query: false,
-	// 		    params: {
-	// 		    	wallet: Joi.string()
-	// 		    },
-	// 		    payload: false
-	// 		},
-	// 		description: 'Get wallet balance'
-	//     }
-	// });
+	server.route({
+		path: '/business/{chat_id}',
+		method: 'GET',
+		config: {
+			auth: {
+                strategy: 'token',
+                scope: ['admin', 'business']
+            },
+			handler: handlers.getBusiness,
+			validate: {
+				query: false,
+		        payload: false,
+		        params: {
+		        	chat_id: Joi.string()
+		        }
+			},
+			response: {
+				schema: joibusinessget
+			},
+			description: 'This route will be used to fetch an existing business from the DB'
+		}
+	});
+
+	server.route({
+		method: 'GET',
+		path: "/invoices",
+		config: {
+			auth: {
+                strategy: 'token',
+                scope: ['admin', 'business']
+            },
+			handler: handlers.getInvoices,
+			validate: {
+			  	query: false,
+			    params: null,
+			    payload: false
+			},
+			description: 'Get all invoices for the current user. Returns all if admin'
+	    }
+	});
 
 	server.route({
 		method: 'POST',

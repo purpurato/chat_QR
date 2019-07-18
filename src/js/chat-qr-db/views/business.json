@@ -6,7 +6,7 @@
             "map": "function(doc) {\n\tif(doc.type == \"business\"){\n\t\t  emit(doc.chat_id, doc.wallet);\t\n\t}\n}"
         },
         "getInvoice": {
-            "map": "function(doc) {\n\tif(doc.type == \"invoice\"){\n\t\t  emit(doc.chat_id, doc.qr_string);\t\n\t}\n}"
+            "map": "function(doc) {\n\tif(doc.type == \"invoice\" && doc.status != \"CREATED\"){\n\t\t  emit(doc.chat_id, doc.value);\t\n\t}\n}"
         },
         "getTransactions": {
             "map": "function(doc) {\n\tif(doc.type == \"transaction\" && doc.scriptPubKey && doc.scriptPubKey.addresses){\n\t  doc.scriptPubKey.addresses.forEach(function(add){\n\t    emit(add, doc.value)  \n\t  })\n\t\t\n\t}\n}"
@@ -16,6 +16,9 @@
         },
         "getInvoiceByTxid": {
             "map": "function(doc) {\n\tif(doc.type == \"invoice\" && doc.txid){\n    emit(doc.txid, doc.value)  \n\t}\n}"
+        },
+        "getChatIdByEmail": {
+            "map": "function(doc) {\n\tif(doc.type == \"business\"){\n\t    doc.users.forEach(function(email){\n\t      emit(email, doc.chat_id);\t  \n\t    });\n\t}\n}"
         }
     }
 }
