@@ -169,7 +169,6 @@ class Wallets extends Component{
 
   render() {
     const self = this;
-    const {user} = self.props;
     const {viewAddWallet} = self.state;
 
     var walletsView;
@@ -180,7 +179,7 @@ class Wallets extends Component{
       walletsView = self.getWalletsView();
     }
 
-    return (<Container>
+    return (<Container fluid="true">
         <Row>
           <ButtonToolbar>
             <Button variant="primary" onClick={()=>{self.setViewAddWallet(false)}}><CreditCard/></Button>
@@ -199,27 +198,8 @@ class Wallets extends Component{
 
 const mapStateToProps = (state, ownProps) => {
   return {
-    http: state.jwtAuthReducer.http, 
-    user: state.jwtAuthReducer.user
+    http: state.jwtAuthReducer.http
   }
 }
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    userLogin: (showLogin) => {
-      dispatch({
-        type: 'user-login',
-        showLogin: showLogin
-      });
-    }
-  }
-}
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Wallets));
-
-// const httpFactory = http => ({
-//   type: 'http-factory',
-//   http: http
-// });
-
-// export default connect(mapStateToProps, {httpFactory})(NavBar);
+export default withRouter(connect(mapStateToProps)(Wallets));

@@ -37,4 +37,11 @@ export default class BitcoinService{
       url: '/node/wallets/load'
     });
   }
+
+  getTransaction(txid){
+    return this.http({
+      method: 'GET',
+      url: '/node/tx/' + txid
+    });
+  }
 }
