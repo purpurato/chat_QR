@@ -20,8 +20,8 @@ module.exports = function (server, conf) {
 
 	server.method({
 		name: 'getnewaddress',
-		method: function(wallet){
-			return bitlib.getnewaddress(wallet);
+		method: function(wallet, params){
+			return bitlib.getnewaddress(wallet, params);
 		},
 		options: {}
 	});
@@ -57,7 +57,10 @@ module.exports = function (server, conf) {
 		var wallet = req.payload;
 		var credentials = req.auth.credentials;
 
-		return bitlib.createwallet([wallet.wallet_name, wallet.disable_private_keys, wallet.blank]);
+		return bitlib.createwallet([wallet.wallet_name, wallet.disable_private_keys, wallet.blank])
+		.then(function(){
+			return bitlib.encryptwallet(wallet.wallet_name, [conf.wallet_key]);
+		});
 	}
 
 	/*
@@ -73,6 +76,18 @@ module.exports = function (server, conf) {
 				return bitlib.loadwallet([wallet.name]);
 			})
 		})
+	}
+
+	/*
+	*/
+
+	handler.getTransaction = function(req, rep){
+		const {txid} = req.params;
+
+		return bitlib.getrawtransaction([txid, true])
+		.then(function(res){
+			return res.result;
+		});
 	}
 	
 

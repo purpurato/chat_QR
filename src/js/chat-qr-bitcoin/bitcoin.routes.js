@@ -69,6 +69,22 @@ module.exports = function (server, conf) {
 	    }
 	});
 
+	server.route({
+		method: 'GET',
+		path: "/node/tx/{txid}",
+		config: {
+			handler: handlers.getTransaction,
+			validate: {
+			  	query: false,
+			    params: {
+			    	txid: Joi.string()
+			    },
+			    payload: false
+			},
+			description: 'Get a transaction from the blockchain'
+	    }
+	});
+
 
 	server.route({
 		method: 'PUT',
