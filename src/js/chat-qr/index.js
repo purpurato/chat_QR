@@ -16,6 +16,17 @@ exports.plugin = {
 		{
 			if(message.text && message.text[0] == "$"){
 				handler.sendQrPicture(message);
+			}else if(message.text == "help" || message.text == "ayuda"){
+				server.methods.sendMessage({
+					chat_id: message.chat.id,
+					text: "To create a new QR type '$' + the amount of the transaction in COP. Ex: $10000"
+				})
+				.then(function(){
+					server.methods.sendMessage({
+						chat_id: message.chat.id,
+						text: "If you need additional support. Please contact help@bit2cash.com"
+					});
+				});
 			}
 		});
 
@@ -36,7 +47,9 @@ exports.plugin = {
 			// New incoming callback query when the user clicks a button
 			if(message.data){
 				var data = JSON.parse(message.data);
-				console.log('inline.callback.query', data);
+				if(data.t){
+					handler.changeAddressType(message.message.chat.id, data);	
+				}
 			}
 		});
 
