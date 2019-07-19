@@ -1,9 +1,9 @@
-var request = require('request');
-var _ = require('underscore');
-var Promise = require('bluebird');
-var Boom = require('boom');
-var BitcoinLib = require("bitcoin-lib");
-// var couchUpdateViews = require('couch-update-views'););
+const request = require('request');
+const _ = require('underscore');
+const Promise = require('bluebird');
+const Boom = require('boom');
+const BitcoinLib = require("bitcoin-lib");
+const { spawn } = require('child_process');
 
 module.exports = function (server, conf) {
 
@@ -12,11 +12,47 @@ module.exports = function (server, conf) {
 	bitlib.setAuth(conf.auth)
 	bitlib.setUrl(conf.url);
 
-	// if(!server.methods.clusterprovider){
-	// 	throw new Error("Have you installed the 'couch-provider' plugin with namespace 'clusterprovider'?");
-	// }
+	const startTunnel = function(ssh_conf){
 
-	// couchUpdateViews.migrateUp(server.methods.clusterprovider.getCouchDBServer(), path.join(__dirname, 'views'), true);
+		if(ssh_conf && ssh_conf.tunnel){
+			var params = _.flatten(_.map(ssh_conf.tunnel, function(val, key){
+				return [key, val];
+			}));
+			if(ssh_conf.identityfile){
+				params = params.concat('-i', ssh_conf.identityfile);
+			}
+			var params = params.concat(['-q', ssh_conf.user + "@" + ssh_conf.hostname ]);
+			const tunnel = spawn('ssh', params);
+			var alldata = "";
+			tunnel.stdout.on('data', function(data){
+				alldata += data;
+			});
+
+			var allerror = "";
+			tunnel.stderr.on('data', function(data){
+				allerror += data;
+			});
+
+			tunnel.on('close', function(code){
+				console.log(alldata);
+				console.error(allerror);
+			});
+
+			tunnel.unref();
+
+			if(tunnel.pid){
+				return Promise.resolve("Tunnel started");
+			}else{
+				return Promise.reject("Tunnel failed!");
+			}
+		}
+		return Promise.resolve();
+	}
+
+	startTunnel(conf.ssh_conf)
+	.then(function(res){
+		console.log(res);
+	});
 
 	server.method({
 		name: 'getnewaddress',
