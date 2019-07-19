@@ -70,36 +70,3 @@ if(argv["block"] !== undefined){
         }
     })
 }
-
-// clusterpost.start(path.join(os.homedir(), '.' + config_codename + '.json'))
-// .then(function(){
-
-    
-    
-// })
-// .catch(console.error)
-
-// client.getInfo().then((help) => console.log(help));
-// client.createWallet("fu").then((help) => console.log(help));
-
-// var bitlib = new BitcoinLib();
-
-// bitlib.start(path.join(os.homedir(), '.bitlib.json'))
-// .then(function(){
-//     bitlib.getblockchaininfo()
-//     .then(function(res){
-//         console.log(res);
-//         return bitlib.getbalance('testwallet');
-//     })
-//     .then(function(res){
-//         console.log(res);
-//         return bitlib.getnewaddress('testwallet1');
-//     })
-//     .then(function(res){
-//         console.log(res);
-//         return bitlib.getbalance('testwallet1');
-//     })
-//     .then(function(res){
-//         console.log(res);
-//     });
-// })
