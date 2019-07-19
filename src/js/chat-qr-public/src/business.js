@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import store from "./redux/store";
 import {withRouter} from 'react-router-dom';
 import {Card, Form, Container, Row, Alert, Button, ButtonToolbar, ListGroup, Table} from "react-bootstrap"
-import {PlusCircle, XCircle, Layers, PlusSquare, Check} from 'react-feather';
+import {PlusCircle, XCircle, Layers, PlusSquare, Check, Edit3} from 'react-feather';
 import ChatQrService from './chat-qr-service'
 import _ from 'underscore'
 
@@ -17,27 +17,31 @@ class Business extends Component{
     this.chatqrservice = new ChatQrService();
     this.chatqrservice.setHttp(http);
 
+    this.defaultBusiness = {
+      "name": "",
+      "users": [],
+      "chat_id": "",
+      "type": "business",
+      "wallet": {
+        "wallet_name": ""
+      },
+      "currency": ""
+    };
+
     this.state = {
     	viewAddBusiness: false,
-    	newBusiness: {
-    		"name": "",
-    		"users": [],
-    		"chat_id": "",
-			"type": "business",
-			"wallet": {
-				"wallet_name": ""
-			}
-    	},
-    	businesses: []
+    	newBusiness: this.defaultBusiness,
+    	businesses: [],
+      currencies: []
     }
   }
 
   componentDidMount(){
   	const self = this;
 
-    self.chatqrservice.getBusinesses()
+    Promise.all([self.chatqrservice.getBusinesses(), self.chatqrservice.getCurrencies()])
     .then(function(res){
-    	self.setState({...self.state, businesses: res.data});
+    	self.setState({...self.state, businesses: res[0].data, currencies: res[1].data});
     });
   }
 
@@ -50,29 +54,43 @@ class Business extends Component{
     const {newBusiness, businesses} = self.state;
 
     event.preventDefault();
-    
-    self.chatqrservice.createBusiness(newBusiness)
-    .then(function(){
-      businesses.push(newBusiness);
 
-      self.setState({...self.state, 
-      	addNewEmail: "",
-        newBusiness: {
-    		"name": "",
-    		"users": [],
-    		"chat_id": "",
-			"type": "business",
-			"wallet": {
-				"wallet_name": ""
-			}
-    	},
-        businesses
-      }, ()=>{self.setViewAddBusiness(false)});
-    })
-    .catch(alert)
+    if(newBusiness._id && newBusiness._rev){
+      self.chatqrservice.updateBusiness(newBusiness)
+      .then(function(){
+        
+        var index = _.indexOf(businesses, function(b){
+          return b._id == newBusiness._id;
+        });
+
+        businesses[index] = newBusiness;
+
+        self.setState({...self.state, 
+          addNewEmail: "",
+          newBusiness: self.defaultBusiness,
+          businesses,
+          viewAddBusiness: false
+        });
+      })
+      .catch(alert)
+    }else{
+      self.chatqrservice.createBusiness(newBusiness)
+      .then(function(){
+        businesses.push(newBusiness);
+
+        self.setState({...self.state, 
+          addNewEmail: "",
+          newBusiness: self.defaultBusiness,
+          businesses,
+          viewAddBusiness: false
+        });
+      })
+      .catch(alert)
+    }
   }
 
   getBusinesses(){
+    const self = this;
     const {businesses} = this.state;
     
     var business_items = _.map(businesses, function(b){
@@ -80,6 +98,10 @@ class Business extends Component{
           <td>{b.name}</td>
           <td>{b.chat_id}</td>
           <td>{b.wallet.wallet_name}</td>
+          <td>{b.currency}</td>
+          <td><Button variant="warning" onClick={()=>{
+            self.setState({...self.state, newBusiness: b, viewAddBusiness: true});
+          }}> <Edit3/></Button></td>
         </tr>);
     })
 
@@ -93,6 +115,8 @@ class Business extends Component{
                 <th>Name</th>
                 <th>Chat Id</th>
                 <th>Wallet</th>
+                <th>Currency</th>
+                <th>Edit</th>
               </tr>
             </thead>
             <tbody>
@@ -117,6 +141,15 @@ class Business extends Component{
   	})
   }
 
+  getCurrencies(){
+    const self = this;
+    const {currencies} = self.state;
+
+    return _.map(currencies, function(curr, key){
+      return (<option>{key}</option>)
+    });
+  }
+
   getAddNewBusiness(){
   	const self = this;
     const {newBusiness, addNewEmail} = self.state;
@@ -125,7 +158,7 @@ class Business extends Component{
       <Card>
         <Card.Body>
           <Alert variant="info">
-            <Form onSubmit={this.createBusiness.bind(this)}>
+            <Form onSubmit={(e)=>{self.createBusiness(e)}}>
               <Form.Group controlId="businessName">
                 <Form.Label>Business name</Form.Label>
                 <Form.Control type="text" placeholder="Enter business name" value={newBusiness.name} onChange={(e)=>{
@@ -150,14 +183,13 @@ class Business extends Component{
                 <Button variant="info" onClick={()=>{
                 	const {newBusiness, addNewEmail} = self.state;
                 	newBusiness.users.push(addNewEmail);
-                	console.log(newBusiness);
                 	self.setState({...self.state, newBusiness, addNewEmail: ""});
                 }}>
                 	<PlusCircle/>
               	</Button>
               	<ListGroup variant="info">
-				  {self.getBusinessUsers()}
-				</ListGroup>
+				        {self.getBusinessUsers()}
+				        </ListGroup>
               </Form.Group>
               <Form.Group controlId="walletName">
                 <Form.Label>Wallet name</Form.Label>
@@ -166,6 +198,16 @@ class Business extends Component{
                   business.wallet.wallet_name = e.target.value;
                   this.setState({...this.state, newBusiness: business});
                 }}/>
+              </Form.Group>
+              <Form.Group controlId="currencies">
+                <Form.Label>Currency type</Form.Label>
+                <Form.Control as="select" placeholder="Currency type" value={newBusiness.currency} onChange={(e)=>{
+                  var business = newBusiness;
+                  business.currency = e.target.value;
+                  this.setState({...this.state, newBusiness: business});
+                }}>
+                  {self.getCurrencies()}
+                </Form.Control>
               </Form.Group>
               <Button variant="primary" type="submit">
                 <Check/>
@@ -192,8 +234,12 @@ class Business extends Component{
     return (<Container>
     	<Row>
           <ButtonToolbar>
-            <Button variant="primary" onClick={()=>{self.setViewAddBusiness(false)}}><Layers/></Button>
-            <Button variant="primary" onClick={()=>{self.setViewAddBusiness(true)}}><PlusSquare/></Button>
+            <Button variant="primary" onClick={()=>{
+              self.setState({...self.state, viewAddBusiness: false})
+            }}><Layers/></Button>
+            <Button variant="primary" onClick={()=>{
+              self.setState({...self.state, viewAddBusiness: true, newBusiness: self.defaultBusiness});
+            }}><PlusSquare/></Button>
           </ButtonToolbar>
         </Row>
 		<Row class="justify-content-center">

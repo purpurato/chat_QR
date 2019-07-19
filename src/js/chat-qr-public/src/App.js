@@ -18,7 +18,7 @@ import axios from 'axios';
 import store from "./redux/store";
 import { connect } from "react-redux";
 import Container from "react-bootstrap/Container"
-import {Wallets} from "chat-qr-bitcoin-react"
+import {Wallets, Transaction} from "chat-qr-bitcoin-react"
 
 class App extends Component {
 
@@ -116,12 +116,16 @@ class App extends Component {
       </Container>);
   }
 
+  transaction(){
+    return (<Transaction />);
+  }
+
   home(){
     const {user} = this.state;
     return (
       <Container>
         
-          <Invoices/>
+          <Invoices txurl="/node/tx"/>
         
       </Container>);
   }
@@ -170,6 +174,7 @@ class App extends Component {
           <Route path="/admin/business" component={this.adminBusiness.bind(this)}/>
           <Route path="/admin/wallets" component={this.wallets.bind(this)}/>
           <Route path="/home" component={this.home.bind(this)}/>
+          <Route path="/node/tx/:txid" component={this.transaction.bind(this)}/>
           <Route exact path="/" component={this.welcome.bind(this)}/>
         </HashRouter>
       </div>

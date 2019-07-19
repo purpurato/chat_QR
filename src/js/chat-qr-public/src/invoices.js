@@ -10,7 +10,10 @@ import _ from 'underscore'
 import {
   ScatterChart, Scatter, Cell, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
+import qs from 'query-string'
+
 var Color = require('color');
+
 
 class Invoices extends Component{
   constructor(props) {
@@ -57,10 +60,14 @@ class Invoices extends Component{
   getScatter(invoices){
     const self = this;
     const length = invoices.length;
+    const {txurl, history} = self.props;
+
     return _.map(invoices, function(invoice, index){
       var color = Color.hsv(Math.floor(360*(index/length)), 100, 100).string();
       return (
-        <Scatter name={invoice.business.name} data={invoice.invoices} fill={color} />
+        <Scatter name={invoice.business.name} data={invoice.invoices} fill={color} onClick={(invoice)=>{
+          history.push(txurl + "/" + invoice.txid);
+        }}/>
       )
     })
   }

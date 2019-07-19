@@ -8,6 +8,7 @@
     "chat-qr-bitcoin-react": "file:../chat-qr-bitcoin-react",
     "color": "^3.1.2",
     "node-sass": "^4.12.0",
+    "query-string": "^6.8.1",
     "react": "^16.8.6",
     "react-bootstrap": "^1.0.0-beta.9",
     "react-dom": "^16.8.6",

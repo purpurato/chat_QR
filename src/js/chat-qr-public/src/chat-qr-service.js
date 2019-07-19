@@ -31,11 +31,26 @@ export default class ChatQrService{
     });
   }
 
+  updateBusiness(business){
+    return this.http({
+      method: 'PUT',
+      url: '/business',
+      data: business
+    }); 
+  }
+
   getInvoices(){
     return this.http({
       method: 'GET',
       url: '/invoices'
     });
+  }
+
+  getCurrencies(){
+    return this.http({
+      method: 'GET',
+      url: '/currencies'
+    }); 
   }
   
 }
