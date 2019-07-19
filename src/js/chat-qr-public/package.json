@@ -13,7 +13,7 @@
     "react-bootstrap": "^1.0.0-beta.9",
     "react-dom": "^16.8.6",
     "react-feather": "^1.1.6",
-    "react-hapi-jwt-auth": "file:../../../../../clusterpost/src/react-jwt-auth",
+    "react-hapi-jwt-auth": "^1.1.1",
     "react-redux": "^7.0.3",
     "react-router-dom": "^5.0.1",
     "react-scripts": "3.0.1",
