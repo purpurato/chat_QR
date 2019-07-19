@@ -8,12 +8,6 @@ const os = require('os');
 const fs = require('fs');
 
 
-// var agentoptions = {
-//     rejectUnauthorized: false
-// }
-
-// bitlib.setAgentOptions(agentoptions);
-
 const help = function(){
     console.error("Help: Download tasks from the server.");
     console.error("\nOptional parameters:");
@@ -31,6 +25,12 @@ if(argv["h"] || argv["help"]){
 
 var bitlib = new BitcoinLib();
 var chatqrlib = new ChatQrLib();
+
+var agentoptions = {
+    rejectUnauthorized: false
+}
+
+chatqrlib.setAgentOptions(agentoptions);
 
 if(argv["txid"] !== undefined){
     var transactionid = argv["txid"];
