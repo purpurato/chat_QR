@@ -14,9 +14,33 @@ module.exports = function (server, conf) {
 
 	// couchUpdateViews.migrateUp(server.methods.clusterprovider.getCouchDBServer(), path.join(__dirname, 'views'), true);
 
+	const getBusiness = function(chat_id){
+		var key = {
+			include_docs: true
+		}
+
+		if(chat_id){
+			key.key = '"' + chat_id + '"';
+		}
+
+		var v = '_design/business/_view/getWallets';
+		v += '?' + qs.stringify(key);
+		
+		return server.methods.couchprovider.getView(v)
+		.then(function(res){
+			return _.pluck(res, 'doc');
+		})
+	}
+
+	server.method({
+		name: 'getBusiness',
+		method: getBusiness,
+		options: {}
+	})
+
 	server.method({
 		name: 'getNewAddress',
-		method: function(chat_id){
+		method: function(chat_id, params){
 			var v = '_design/business/_view/getWallets';
 			var key = {
 				key: '"' + JSON.stringify(chat_id) + '"'
@@ -31,7 +55,7 @@ module.exports = function (server, conf) {
 				var wallet = res[0];
 
 				if(wallet){
-					return server.methods.getnewaddress(wallet.wallet_name);	
+					return server.methods.getnewaddress(wallet.wallet_name, params);	
 				}else{
 					return Promise.reject("No wallet found");
 				}
@@ -48,16 +72,9 @@ module.exports = function (server, conf) {
 	*/
 	handler.getBusinesses = function(req, rep){
 
-		var v = '_design/business/_view/getWallets';
-		
-		var key = {
-			include_docs: true
-		}
-		v += '?' + qs.stringify(key);
-
-		return server.methods.couchprovider.getView(v)
-		.then(function(res){
-			return _.pluck(res, 'doc');
+		return getBusiness()
+		.catch(function(err){
+			return Boom.notFound(err);
 		});
 	}
 
@@ -67,17 +84,9 @@ module.exports = function (server, conf) {
 		
 		const {chat_id} = req.params;
 		
-		var key = {
-			include_docs: true,
-			key: '"' + chat_id + '"'
-		}
-
-		var v = '_design/business/_view/getWallets';
-		v += '?' + qs.stringify(key);
-		
-		return server.methods.couchprovider.getView(v)
+		return getBusiness(chat_id)
 		.then(function(res){
-			return _.pluck(res, 'doc')[0];
+			return res[0];
 		})
 		.catch(function(err){
 			return Boom.notFound(err);
@@ -87,6 +96,12 @@ module.exports = function (server, conf) {
 	/*
 	*/
 	handler.createBusiness = function(req, rep){
+		const business = req.payload;
+		return server.methods.couchprovider.uploadDocuments(business);
+	}
+
+	/**/
+	handler.updateBusiness = function(req, rep){
 		const business = req.payload;
 		return server.methods.couchprovider.uploadDocuments(business);
 	}
@@ -121,7 +136,7 @@ module.exports = function (server, conf) {
 
 						var inline_keyboard = [[{
 		                    "text": "View",
-		                    "url": "https://www.blockchain.com/btc/tx/" + txid
+		                    "url": conf.txurl + "/" + txid
 		                }]]
 
 		                var message = {
@@ -159,7 +174,7 @@ module.exports = function (server, conf) {
 
 					var inline_keyboard = [[{
 		                "text": "View",
-		                "url": "https://www.blockchain.com/btc/tx/" + txout._id
+		                "url": conf.txurl + "/" + txout._id
 		            }]]
 
 		            var message = {
@@ -176,19 +191,18 @@ module.exports = function (server, conf) {
 	}
 
 	const getChatIdByEmail = function(credentials){
-		return new Promise(function(resolve, reject){
-			var v = '_design/business/_view/getChatIdByEmail';
+		
+		var v = '_design/business/_view/getChatIdByEmail';
 
-			var key = {
-				key: credentials.email
-			}
+		var key = {
+			key: '"' + credentials.email + '"'
+		}
 
-			v += '?' + qs.stringify(key);
-			
-			return server.methods.couchprovider.getView(v)
-			.then(function(res){
-				return _.pluck(res, 'value');
-			})
+		v += '?' + qs.stringify(key);
+		
+		return server.methods.couchprovider.getView(v)
+		.then(function(res){
+			return _.pluck(res, 'value');
 		})
 	}
 
@@ -214,12 +228,14 @@ module.exports = function (server, conf) {
 				return Promise.map(keys, function(key){
 					var v = '_design/business/_view/getInvoice';
 					v += '?' + qs.stringify(key);
-					
-					return server.methods.couchprovider.getView(v)
-					.then(function(res){
-						return {[key.key]: _.pluck(res, 'doc')};
-					});
+					return server.methods.couchprovider.getView(v);
+				})
+				.then(function(res){
+					return _.flatten(res);
 				});
+			})
+			.then(function(res){
+				return _.groupBy(_.pluck(res, 'doc'), 'chat_id');
 			})
 			.catch(function(err){
 				return Boom.notFound(err);
@@ -234,6 +250,9 @@ module.exports = function (server, conf) {
 			return server.methods.couchprovider.getView(v)
 			.then(function(res){
 				return _.groupBy(_.pluck(res, 'doc'), 'chat_id');
+			})
+			.catch(function(err){
+				return Boom.notFound(err);
 			});
 		}
 	}
@@ -287,12 +306,22 @@ module.exports = function (server, conf) {
 			return server.methods.couchprovider.getDocument(txid);
 		}))
 		.then(function(transaction){
-			console.log("found!", transaction);
 			return server.methods.couchprovider.uploadDocuments(block);	
 		})
 		.catch(function(err){
 			return Boom.notFound(err);
 		})
+	}
+
+	/*
+	*/
+
+	handler.getCurrencies = function(req, rep){
+		return server.methods.getCurrencies()
+		.catch(function(err){
+			console.error('getCurrencies', err);
+			return Boom.notFound(err);
+		});
 	}
 
 	return handler;

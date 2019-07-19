@@ -11,7 +11,8 @@ module.exports = function (server, conf) {
 		"type": Joi.string().valid("business"),
 		"wallet": Joi.object().keys({
 			"wallet_name": Joi.string()
-		})
+		}),
+		"currency": Joi.string()
 	});
 
 	const joibusinessget = Joi.object().keys({
@@ -23,7 +24,8 @@ module.exports = function (server, conf) {
 		"type": Joi.string().valid("business"),
 		"wallet": Joi.object().keys({
 			"wallet_name": Joi.string()
-		})
+		}),
+		"currency": Joi.string()
 	});
 
 	server.route({
@@ -89,6 +91,24 @@ module.exports = function (server, conf) {
 	});
 
 	server.route({
+		method: 'GET',
+		path: "/currencies",
+		config: {
+			auth: {
+                strategy: 'token',
+                scope: ['admin', 'business']
+            },
+			handler: handlers.getCurrencies,
+			validate: {
+			  	query: false,
+			    params: null,
+			    payload: false
+			},
+			description: 'Get all available currencies from local bitcoins'
+	    }
+	});
+
+	server.route({
 		method: 'POST',
 		path: "/business",
 		config: {
@@ -103,6 +123,24 @@ module.exports = function (server, conf) {
 			    payload: joibusinesspost
 			},
 			description: 'Create a new business'
+	    }
+	});
+
+	server.route({
+		method: 'PUT',
+		path: "/business",
+		config: {
+			auth: {
+                strategy: 'token',
+                scope: ['admin']
+            },
+			handler: handlers.updateBusiness,
+			validate: {
+			  	query: false,
+			    params: null,
+			    payload: joibusinessget
+			},
+			description: 'Update business info'
 	    }
 	});
 
