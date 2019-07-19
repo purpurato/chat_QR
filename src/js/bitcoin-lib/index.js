@@ -414,8 +414,8 @@ class BitcoinLib {
 	getaddressesbylabel(wallet, params){
 		return this.executeMethod("getaddressesbylabel", params, "/wallet/" + wallet);
 	}
-	getaddressinfo(wallet, params){
-		return this.executeMethod("getaddressinfo", params, "/wallet/" + wallet);
+	getaddressinfo(params){
+		return this.executeMethod("getaddressinfo", params);
 	}
 	getbalance(wallet, params){
 		return this.executeMethod("getbalance", params, "/wallet/" + wallet);
@@ -525,8 +525,8 @@ class BitcoinLib {
 	signrawtransactionwithwallet(wallet, params){
 		return this.executeMethod("signrawtransactionwithwallet", params, "/wallet/" + wallet);
 	}
-	unloadwallet(wallet, params){
-		return this.executeMethod("unloadwallet", params, "/wallet/" + wallet);
+	unloadwallet(params){
+		return this.executeMethod("unloadwallet", params);
 	}
 	walletcreatefundedpsbt(wallet, params){
 		return this.executeMethod("walletcreatefundedpsbt", params, "/wallet/" + wallet);
