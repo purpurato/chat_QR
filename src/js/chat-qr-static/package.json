@@ -1,0 +1,14 @@
+{
+  "name": "chat-qr-static",
+  "version": "1.0.0",
+  "description": "Public route for static content",
+  "main": "index.js",
+  "scripts": {
+    "test": "lab -v test.js"
+  },
+  "author": "juanprietob@gmail.com",
+  "license": "MIT",
+  "dependencies": {
+    "chat-qr-public": "file:../chat-qr-public"
+  }
+}

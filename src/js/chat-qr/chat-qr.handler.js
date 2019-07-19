@@ -3,63 +3,114 @@
 const qr = require('qr-image');
 const request = require('request');
 const Promise = require('bluebird');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
 const qs = require('querystring');
+const _ = require('underscore');
 
 module.exports = function(server, conf){
 	class ChatQrHandler {
 		constructor(){
 		}
 
-		getRate(){
+		getRate(currency){
+			return this.getCurrencies()
+			.then(function(currencies){
+				return Number.parseFloat(currencies[currency]['rates']['last'])
+			})
+			.catch(function(err){
+				console.error("getRate", err);
+				return err;
+			});	
+		}
+
+		getCurrencies(){
 			return new Promise(function(resolve, reject){
 				request({
 					uri: 'https://localbitcoins.com/bitcoinaverage/ticker-all-currencies/',
 					method: 'get'
 				}, function(err, res, body){
-					resolve(Number.parseFloat(JSON.parse(body)['COP']['rates']['last']));
+					resolve(JSON.parse(body));
 				});
-			})
-			.catch(function(err){
-				console.error("getRate", err);
 			});
+		}
+
+		getBusinessRate(chat_id){
+			const self = this;
+			return server.methods.getBusiness(chat_id)
+			.then(function(res){
+				return res[0];
+			})
+			.then(function(business){
+				return self.getRate(business.currency);
+			});
+		}
+
+		getQrPicture(qr_string){
+			var qr_png = qr.image(qr_string, { type: 'png' });
+			qr_png.path = "qr.png";
+			return qr_png;
+		}
+
+		sendChangeAddressType(chat_id, address){
+			return server.methods.sendMessage({
+				chat_id: chat_id,
+				text: "Change address type",
+				reply_markup: JSON.stringify({
+					inline_keyboard: [[{
+						text: "bech32",
+						callback_data: JSON.stringify({
+							"i": address,
+							"t": "b"
+						})
+					}, {
+						text: "legacy",
+						callback_data: JSON.stringify({
+							"i": address,
+							"t": "l"
+						})
+					}, {
+						text: "p2sh-segwit",
+						callback_data: JSON.stringify({
+							"i": address,
+							"t": "s"
+						})
+					}]]
+				})
+			});	
 		}
 
 		sendQrPicture(message){
 
-			var that = this;
+			const self = this;
 
-			Promise.all([server.methods.getWallet(message.chat.id), that.getRate()])
+			Promise.all([server.methods.getNewAddress(message.chat.id), self.getBusinessRate(message.chat.id)])
 			.then(function(res){
-				var wallet = res[0][0];
+				var address = res[0];
+				
 				var rate = res[1];
 				var invoice = Number.parseFloat(message.text.substring(1));
-
-				console.log(wallet, rate, invoice);
+				
 				var amount = {
-					amount: invoice/rate
+					amount: Number.parseFloat((invoice/rate).toFixed(8))
 				}
 
-				var qr_string = 'bitcoin:' + wallet.address + "?" + qs.stringify(amount);
-				var qr_png = qr.image(qr_string, { type: 'png' });
-				qr_png.path = String(message.chat.id) + ".png";
-
+				var qr_string = 'bitcoin:' + address + "?" + qs.stringify(amount);
+				var qr_png = self.getQrPicture(qr_string);
 
 				var transaction_doc = {
-					type: "transaction",
-					qr_string: qr_string,
+					_id: address,
+					type: "invoice",
 					chat_id: message.chat.id,
+					qr_string: qr_string,
 					date: Date.now(),
 					status: "CREATED", 
 					rate: rate, 
-					invoice: invoice
+					invoice: invoice,
+					value: amount.amount,
 				}
 
 				return server.methods.couchprovider.uploadDocuments([transaction_doc])
 				.then(function(res){
-					var transaction_id = res[0].id;
+					
 					return server.methods.sendPhoto({
 						chat_id: message.chat.id,
 						photo: qr_png
@@ -67,21 +118,11 @@ module.exports = function(server, conf){
 					.then(function(){
 						return server.methods.sendMessage({
 							chat_id: message.chat.id,
-							text: "Action items",
-							reply_markup: JSON.stringify({
-								inline_keyboard: [[{
-									text: "Ok",
-									callback_data: JSON.stringify({
-										"ot": transaction_id
-									})
-								}, {
-									text: "Cancel",
-									callback_data: JSON.stringify({
-										"ct": transaction_id
-									})
-								}]]
-							})
-						});	
+							text: qr_string
+						});
+					})
+					.then(function(){
+						return self.sendChangeAddressType(message.chat.id, address);
 					});
 				});
 			})
@@ -90,19 +131,71 @@ module.exports = function(server, conf){
 			})
 		}
 
-		verifyTransaction(transaction_id, ok_transaction){
-			var that = this;
+		changeAddressType(chat_id, data){
+			const self = this;
 
-			return server.methods.couchprovider.getDocument(transaction_id)
+			return server.methods.couchprovider.getDocument(data.i)
 			.then(function(doc){
-				if(ok_transaction){
-					doc.status = "ALIVE";
+				var addtype;
+
+				if(data.t == "b"){
+					addtype = "bech32";
+				}else if(data.t = "l"){
+					addtype = "legacy";
 				}else{
-					doc.status = "CANCEL";
+					addtype = "p2sh-segwit";
 				}
-				return server.methods.uploadDocuments(doc);
+				return server.methods.getNewAddress(chat_id, ["", addtype])
+				.then(function(address){
+					var doc_old = _.clone(doc);
+					doc._id = address;
+					delete doc._rev;
+
+					var qr_string = 'bitcoin:' + address + "?" + qs.stringify({amount: doc.value});
+					doc.qr_string = qr_string;
+
+					var qr_png = self.getQrPicture(qr_string);
+					return Promise.all([server.methods.couchprovider.uploadDocuments(doc), server.methods.couchprovider.deleteDocument(doc_old)])
+					.then(function(){
+						return [qr_png, addtype, address, qr_string];
+					});
+				});
 			})
+			.spread(function(qr_png, addtype, address, qr_string){
+				return server.methods.sendMessage({
+					chat_id: chat_id,
+					text: addtype + ":"
+				})
+				.then(function(){
+					return server.methods.sendPhoto({
+						chat_id: chat_id,
+						photo: qr_png
+					});
+				})
+				.then(function(){
+					return server.methods.sendMessage({
+						chat_id: chat_id,
+						text: qr_string
+					});
+				})
+				.then(function(){
+					return self.sendChangeAddressType(chat_id, address);
+				})
+			})
+			.then(function(){
+
+			})
+			
 		}
 	}
-	return new ChatQrHandler();
+
+	const chat_qr_handler = new ChatQrHandler();
+
+	server.method({
+		name: 'getCurrencies',
+		method: chat_qr_handler.getCurrencies,
+		options: {}
+	});
+
+	return chat_qr_handler;
 }

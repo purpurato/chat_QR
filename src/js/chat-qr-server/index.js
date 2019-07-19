@@ -1,8 +1,6 @@
-'use strict';
-
-var Hapi = require('hapi');
+var Hapi = require('@hapi/hapi');
 var fs = require('fs');
-var good = require('good');
+var good = require('@hapi/good');
 var path = require('path');
 var _ = require('underscore');
 
@@ -21,7 +19,7 @@ const getConfigFile = function () {
   }
 }
 
-const startServer = function(cluster){
+const startServer = async (cluster) => {
 
     var conf = getConfigFile();
 
@@ -32,60 +30,82 @@ const startServer = function(cluster){
           cert: fs.readFileSync(conf.tls.cert)
         };
     }
-
-    var server = new Hapi.Server({ 
+    var server_options = { 
         host: conf.host,
         port: conf.port,
         tls: tls
-    });    
+    }
+    if(process.env.NODE_ENV == 'test'){
+        server_options.routes = {
+            "cors": true
+        }
+    }
+    var server = new Hapi.Server(server_options);    
 
-    
-    const init = async () => {
-
-        var plugins = _.map(conf.plugins, function(options, pluginName){
+    var plugins = _.map(conf.plugins, function(options, pluginName){
             return {
                 plugin: require(pluginName), 
                 options: options
             }
         });
-        
 
-        plugins.push({
-            plugin: good,
-            options: {
-                reporters: {
-                    myConsoleReporter: [{
-                        module: 'good-squeeze',
-                        name: 'Squeeze',
-                        args: [{ log: '*', response: '*' }]
-                    },
-                    {
-                        module: 'good-console'
-                    }, 'stdout'],
-                    myFileReporter: [{
-                        module: 'good-squeeze',
-                        name: 'Squeeze',
-                        args: [{ ops: '*' }]
-                    }, {
-                        module: 'good-squeeze',
-                        name: 'SafeJson'
-                    }, {
-                        module: 'good-file',
-                        args: ['all.log']
-                    }]
-                }
+    plugins.push({
+        plugin: good,
+        options: {
+            reporters: {
+                myConsoleReporter: [{
+                    module: '@hapi/good-squeeze',
+                    name: 'Squeeze',
+                    args: [{ log: '*', response: '*' }]
+                },
+                {
+                    module: '@hapi/good-console'
+                }, 'stdout'],
+                myFileReporter: [{
+                    module: '@hapi/good-squeeze',
+                    name: 'Squeeze',
+                    args: [{ ops: '*' }]
+                }, {
+                    module: '@hapi/good-squeeze',
+                    name: 'SafeJson'
+                }]
             }
-        });
-        
+        }
+    });
 
-        await server.register(plugins);
-        await server.start();
-        console.log(`Server running at: ${server.info.uri}`);
-    };
-
-    init();
+    
+    server.method({
+        name: 'getCluster',
+        method: function(){
+            return cluster;
+        },
+        options: {}
+    });
+    
+    await server.register(plugins);
+    await server.start();
+    console.log(`Server running at: ${server.info.uri}`);
 
 }
 
-startServer();
+if(env === 'production'){
+    const cluster = require('cluster');
+    const numCPUs = require('os').cpus().length;
 
+    if (cluster.isMaster) {
+      // Fork workers.
+      for (var i = 0; i < 1; i++) {
+        cluster.fork();
+      }
+
+      cluster.on('exit', (worker, code, signal) => {
+        console.log("worker ", worker.process.pid,"died");
+      });
+      
+    } else {
+        startServer(cluster);
+    }
+}else{
+
+    startServer();
+}
