@@ -25,7 +25,7 @@ class Business extends Component{
       "wallet": {
         "wallet_name": ""
       },
-      "currency": ""
+      "currency": "COP"
     };
 
     this.state = {
