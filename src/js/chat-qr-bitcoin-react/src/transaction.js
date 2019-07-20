@@ -48,11 +48,14 @@ class Transaction extends Component{
               return self.bitcoin.getTransaction(tvin.txid)
               .then(function(res){
                   var txin = res.data;
-                  transaction.tvin.push({
-                    addresses: txin.vout[tvin.vout].scriptPubKey.addresses, 
-                    value: txin.vout[tvin.vout].value
-                  })
-                  return txin.vout[tvin.vout].value;
+                  if(txin){
+                    transaction.tvin.push({
+                      addresses: txin.vout[tvin.vout].scriptPubKey.addresses, 
+                      value: txin.vout[tvin.vout].value
+                    })  
+                    return txin.vout[tvin.vout].value;
+                  }
+                  return 0;
               });
           }))
           .then(function(res){
@@ -74,6 +77,9 @@ class Transaction extends Component{
         transaction.totalout = totalout;
 
         var fees = totalin - totalout;
+        if(fees < 0){
+          fees = 0;
+        }
         transaction.fees = fees;
 
         var feeperbyte = (fees/0.00000001)/txout.size;

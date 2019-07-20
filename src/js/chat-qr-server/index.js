@@ -35,7 +35,7 @@ const startServer = async (cluster) => {
         port: conf.port,
         tls: tls
     }
-    if(process.env.NODE_ENV == 'test'){
+    if(process.env.NODE_ENV.match(new RegExp(/.*test.*/))){
         server_options.routes = {
             "cors": true
         }

@@ -2,7 +2,7 @@ const request = require('request');
 const _ = require('underscore');
 const Promise = require('bluebird');
 const Boom = require('boom');
-const BitcoinLib = require("bitcoin-lib");
+const BitcoinLib = require("@juanprietob/bitcoin-lib");
 const { spawn } = require('child_process');
 
 module.exports = function (server, conf) {

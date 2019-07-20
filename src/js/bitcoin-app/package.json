@@ -12,7 +12,7 @@
   "author": "jprieto@medimg-ai.com",
   "license": "MIT",
   "dependencies": {
-    "bitcoin-lib": "file:../bitcoin-lib",
+    "@juanprietob/bitcoin-lib": "^1.0.0",
     "bluebird": "^3.5.5",
     "chat-qr-lib": "file:../chat-qr-lib",
     "minimist": "^1.2.0",
