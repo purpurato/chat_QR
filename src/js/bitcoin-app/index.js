@@ -1,4 +1,4 @@
-const BitcoinLib = require("bitcoin-lib");
+const BitcoinLib = require("@juanprietob/bitcoin-lib");
 const ChatQrLib = require("chat-qr-lib");
 
 const path = require('path');
