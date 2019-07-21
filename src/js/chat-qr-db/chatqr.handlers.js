@@ -290,6 +290,9 @@ module.exports = function (server, conf) {
 		})
 		.then(function(txout){
 			return server.methods.couchprovider.uploadDocuments(txout);
+		})
+		.catch(function(err){
+			return Boom.notFound(err);
 		});
 	
 	}
