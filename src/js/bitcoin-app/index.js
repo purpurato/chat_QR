@@ -13,6 +13,7 @@ const help = function(){
     console.error("\nOptional parameters:");
     console.error("--txid  transaction id");
     console.error("--block blockhash");
+    console.error("--token email - Requests a signed token, provide the email address to sign");
 }
 
 const bitlibconfig = path.join(os.homedir(), '.bitlib.json');
@@ -68,5 +69,19 @@ if(argv["block"] !== undefined){
         }else{
             return Promise.reject(res);
         }
+    })
+}
+
+if(argv["token"] !== undefined){
+    
+    var chatqrlibconfig_admin = path.join(os.homedir(), '.chatqrlib-admin.json');
+    var email = argv["token"];
+    
+    return chatqrlib.start(chatqrlibconfig_admin)
+    .then(function(res){
+        return chatqrlib.getUserToken(email, "356d");
+    })
+    .then(function(res){
+        console.log(res);
     })
 }
