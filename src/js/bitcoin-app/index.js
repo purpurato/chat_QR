@@ -27,8 +27,14 @@ if(argv["h"] || argv["help"]){
 var bitlib = new BitcoinLib();
 var chatqrlib = new ChatQrLib();
 
-var agentoptions = {
-    rejectUnauthorized: false
+
+
+var agentoptions = {};
+
+var cafile = path.join(__dirname, 'ca.pem');
+
+if(fs.existsSync(cafile)){
+    agentoptions.ca = fs.readFileSync(cafile);
 }
 
 chatqrlib.setAgentOptions(agentoptions);
