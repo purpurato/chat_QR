@@ -58,6 +58,7 @@ class ChatQrLib extends HapiJWTCouch{
             var options = {
                 'url': self.getServer() + '/txout/' + encodeURIComponent(transactionid),
                 'method': 'POST',
+                'agentOptions': self.agentOptions,
                 'auth': self.auth,
                 'json': txout
             }
@@ -78,6 +79,7 @@ class ChatQrLib extends HapiJWTCouch{
             var options = {
                 'url': self.getServer() + '/block/' + encodeURIComponent(blockhash),
                 'method': 'POST',
+                'agentOptions': self.agentOptions,
                 'auth': self.auth,
                 'json': block
             }
