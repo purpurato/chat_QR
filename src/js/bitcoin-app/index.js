@@ -82,6 +82,9 @@ if(argv["token"] !== undefined){
         return chatqrlib.getUserToken(email, "356d");
     })
     .then(function(res){
-        console.log(res);
+        var token = res;;
+        token.uri = chatqrlib.getServer();
+        console.log("Writing:", chatqrlibconfig);
+        fs.writeFileSync(chatqrlibconfig, JSON.stringify(token));
     })
 }
