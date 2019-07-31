@@ -24,12 +24,12 @@ exports.plugin = {
 			}else if(message.text == "Contact" || message.text == "contact" || message.text == "contacto"){
 				server.methods.sendMessage({
 					chat_id: message.chat.id,
-					text: "If you need any questions please contact help@bit-2cash.com"
+					text: "If you need any questions please contact help@bit-2cash.com @Purpurato"
 				});
 			}else if(message.text == "Issues" || message.text == "issues" || message.text == "problema"){
 				server.methods.sendMessage({
 					chat_id: message.chat.id,
-					text: "If you need technical support please contact support@bit-2cash.com"
+					text: "If you need technical support please contact support@bit-2cash.com or @Juanprietob"
 				});
 			}else if(message.text === '/start'){
 				handler.sendCustomKeyboard(message);

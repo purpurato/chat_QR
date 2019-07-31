@@ -157,11 +157,11 @@ class App extends Component {
             </Card>
             <Card>
               <Card.Body>
-                <Card.Title class='alert alert-primary'>Market analysis</Card.Title>
+                <Card.Title class='alert alert-primary'>How to start?</Card.Title>
                 <Card.Text>
                   Use our Telegram bot to create QR codes that can be presented to your customer. 
                   Download Telegram from <a href="https://telegram.org/">https://telegram.org/</a> and add
-                  our bot @bit-2cash to your contacts. 
+                  our bot <a href="https://telegram.me/bitcopbot">@bit-2cash</a> to your contacts. 
                   To create a new QR code send a message using '$' and the amount of the transaction. 
                   We will give you corresponding amount in COP at the end of the month. 
                   Contact us at <a href="mailto:contact@bit-2cash.com">contact@bit-2cash.com</a>

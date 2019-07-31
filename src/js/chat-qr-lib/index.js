@@ -94,64 +94,6 @@ class ChatQrLib extends HapiJWTCouch{
         });
     }
 
-    promptUsernamePassword(){
-        return new Promise(function(resolve, reject){
-            var schema = {
-                properties: {
-                    email: {
-                        pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-                        message: 'Email address',
-                        required: true
-                    },
-                    password: {                    
-                        hidden: true,
-                        required: true
-                    }
-                }
-            };
-            prompt.start();
-            prompt.get(schema, function (err, result) {
-                if(err){
-                    reject(err)
-                }else{
-                    resolve(result);
-                }
-            });
-        });
-    }
-
-    promptServer(){
-        return new Promise(function(resolve, reject){
-            var schema = {
-                properties: {
-                    uri: {
-                        message: 'Please enter the chatqr server url',
-                        required: true
-                    }
-                }
-            };
-            prompt.start();
-            prompt.get(schema, function (err, result) {
-                if(err){
-                    reject(err)
-                }else{
-                    resolve(result);
-                }
-            });
-        });
-    }
-
-    testUserToken(token){
-        var jwt = jws.decode(token.token);
-
-        if(jwt.exp && jwt.exp < Date.now() / 1000){
-            return false;
-        }else if(jwt.exp === undefined){
-            console.log("WARNING! The token does not have an expiry date. Tokens without expiry date were deprecated. The clusterpost-server could be running an old version. Please contact the clusterpost-server administrator.");
-        }
-        return true;
-    }
-
     start(configfilename){
         var self = this;
 
