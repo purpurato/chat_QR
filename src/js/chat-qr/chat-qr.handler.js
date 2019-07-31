@@ -78,6 +78,20 @@ module.exports = function(server, conf){
 			});	
 		}
 
+		sendCustomKeyboard(message){
+			var chat_id = message.chat.id;
+
+			return server.methods.sendMessage({
+				chat_id: chat_id,
+				text: "Options",
+				reply_markup: JSON.stringify({
+					keyboard: [["Help", "Contact", "Issues"]],
+					resize_keyboard: true,
+					one_time_keyboard: false
+				})
+			});	
+		}
+
 		sendQrPicture(message){
 
 			const self = this;
