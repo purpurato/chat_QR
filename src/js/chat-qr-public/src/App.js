@@ -157,7 +157,7 @@ class App extends Component {
             </Card>
             <Card>
               <Card.Body>
-                <Card.Title class='alert alert-primary'>Market analysis</Card.Title>
+                <Card.Title class='alert alert-primary'>How to start?</Card.Title>
                 <Card.Text>
                   Use our Telegram bot to create QR codes that can be presented to your customer. 
                   Download Telegram from <a href="https://telegram.org/">https://telegram.org/</a> and add
