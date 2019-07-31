@@ -85,7 +85,7 @@ if(argv["token"] !== undefined){
     
     return chatqrlib.start(chatqrlibconfig_admin)
     .then(function(res){
-        return chatqrlib.getUserToken(email, "356d");
+        return chatqrlib.getSignedData({email}, "356d");
     })
     .then(function(res){
         var token = res;;
