@@ -40,7 +40,12 @@ module.exports = function(server, conf){
 				return res[0];
 			})
 			.then(function(business){
-				return self.getRate(business.currency);
+				if(business && business.currency){
+					return self.getRate(business.currency);	
+				}else{
+					return Promise.reject("Business not found");
+				}
+				
 			});
 		}
 
@@ -98,6 +103,7 @@ module.exports = function(server, conf){
 
 			Promise.all([server.methods.getNewAddress(message.chat.id), self.getBusinessRate(message.chat.id)])
 			.then(function(res){
+
 				var address = res[0];
 				
 				var rate = res[1];
@@ -141,7 +147,10 @@ module.exports = function(server, conf){
 				});
 			})
 			.catch(function(err){
-				console.error('sendQrPicture', err);
+				return server.methods.sendMessage({
+					chat_id: message.chat.id,
+					text: "You don't have a business account in bit-2cash.com yet, please contact @purpurato to create one. Your chat id is: " + message.chat.id
+				})
 			})
 		}
 
