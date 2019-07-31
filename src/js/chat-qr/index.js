@@ -16,17 +16,23 @@ exports.plugin = {
 		{
 			if(message.text && message.text[0] == "$"){
 				handler.sendQrPicture(message);
-			}else if(message.text == "help" || message.text == "ayuda"){
+			}else if(message.text == "Help" || message.text == "help" || message.text == "ayuda"){
 				server.methods.sendMessage({
 					chat_id: message.chat.id,
 					text: "To create a new QR type '$' + the amount of the transaction in COP. Ex: $10000"
-				})
-				.then(function(){
-					server.methods.sendMessage({
-						chat_id: message.chat.id,
-						text: "If you need additional support. Please contact help@bit2cash.com"
-					});
 				});
+			}else if(message.text == "Contact" || message.text == "contact" || message.text == "contacto"){
+				server.methods.sendMessage({
+					chat_id: message.chat.id,
+					text: "If you need any questions please contact help@bit-2cash.com"
+				});
+			}else if(message.text == "Issues" || message.text == "issues" || message.text == "problema"){
+				server.methods.sendMessage({
+					chat_id: message.chat.id,
+					text: "If you need technical support please contact support@bit-2cash.com"
+				});
+			}else if(message.text === '/start'){
+				handler.sendCustomKeyboard(message);
 			}
 		});
 

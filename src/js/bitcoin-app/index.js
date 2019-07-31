@@ -27,8 +27,14 @@ if(argv["h"] || argv["help"]){
 var bitlib = new BitcoinLib();
 var chatqrlib = new ChatQrLib();
 
-var agentoptions = {
-    rejectUnauthorized: false
+
+
+var agentoptions = {};
+
+var cafile = path.join(__dirname, 'ca.pem');
+
+if(fs.existsSync(cafile)){
+    agentoptions.ca = fs.readFileSync(cafile);
 }
 
 chatqrlib.setAgentOptions(agentoptions);
@@ -82,6 +88,9 @@ if(argv["token"] !== undefined){
         return chatqrlib.getUserToken(email, "356d");
     })
     .then(function(res){
-        console.log(res);
+        var token = res;;
+        token.uri = chatqrlib.getServer();
+        console.log("Writing:", chatqrlibconfig);
+        fs.writeFileSync(chatqrlibconfig, JSON.stringify(token));
     })
 }

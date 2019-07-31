@@ -155,6 +155,19 @@ class App extends Component {
                 </Card.Text>
               </Card.Body>
             </Card>
+            <Card>
+              <Card.Body>
+                <Card.Title class='alert alert-primary'>Market analysis</Card.Title>
+                <Card.Text>
+                  Use our Telegram bot to create QR codes that can be presented to your customer. 
+                  Download Telegram from <a href="https://telegram.org/">https://telegram.org/</a> and add
+                  our bot @bit-2cash to your contacts. 
+                  To create a new QR code send a message using '$' and the amount of the transaction. 
+                  We will give you corresponding amount in COP at the end of the month. 
+                  Contact us at <a href="mailto:contact@bit-2cash.com">contact@bit-2cash.com</a>
+                </Card.Text>
+              </Card.Body>
+            </Card>
           </Col>
         </Row>
       </Container>);
@@ -167,15 +180,29 @@ class App extends Component {
           <header className="App-header">
             <NavBar/>
           </header>
-          <Route path="/login" component={this.login.bind(this)}/>
-          <Route path="/logout" component={this.login.bind(this)}/>
-          <Route path="/user" component={this.profile.bind(this)}/>
-          <Route path="/admin/users" component={this.adminUsers.bind(this)}/>
-          <Route path="/admin/business" component={this.adminBusiness.bind(this)}/>
-          <Route path="/admin/wallets" component={this.wallets.bind(this)}/>
-          <Route path="/home" component={this.home.bind(this)}/>
-          <Route path="/node/tx/:txid" component={this.transaction.bind(this)}/>
-          <Route exact path="/" component={this.welcome.bind(this)}/>
+          <Container fluid="true" style={{height: "95%", minHeight: "90vh"}}>
+            <Route path="/login" component={this.login.bind(this)}/>
+            <Route path="/logout" component={this.login.bind(this)}/>
+            <Route path="/user" component={this.profile.bind(this)}/>
+            <Route path="/admin/users" component={this.adminUsers.bind(this)}/>
+            <Route path="/admin/business" component={this.adminBusiness.bind(this)}/>
+            <Route path="/admin/wallets" component={this.wallets.bind(this)}/>
+            <Route path="/home" component={this.home.bind(this)}/>
+            <Route path="/node/tx/:txid" component={this.transaction.bind(this)}/>
+            <Route exact path="/" component={this.welcome.bind(this)}/>
+          </Container>
+          <footer class="alert alert-dark" style={{fontSize: "small", width: "100%"}}>
+            <Row className="justify-content-md-center">
+              <Col md="auto">
+                <a href="mailto:contact@bit-2cash.com">Contact us</a>
+              </Col>
+            </Row>
+            <Row className="justify-content-md-center">
+              <Col md="auto">
+                Copyright &copy; 2019 - bit-2cash
+              </Col>
+            </Row>
+          </footer>
         </HashRouter>
       </div>
     );
