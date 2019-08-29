@@ -125,7 +125,7 @@ module.exports = function(server, conf){
 					status: "CREATED", 
 					rate: rate, 
 					invoice: invoice,
-					value: amount.amount,
+					value: amount.amount
 				}
 
 				return server.methods.couchprovider.uploadDocuments([transaction_doc])
