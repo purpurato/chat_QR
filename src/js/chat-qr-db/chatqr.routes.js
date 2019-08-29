@@ -113,7 +113,7 @@ module.exports = function (server, conf) {
 		config: {
 			auth: {
                 strategy: 'token',
-                scope: ['business']
+                scope: ['admin', 'business']
             },
 			handler: handlers.getInvoice,
 			validate: {
