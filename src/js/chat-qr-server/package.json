@@ -21,7 +21,7 @@
     "chat-qr-static": "file:../chat-qr-static",
     "chat-qr-transaction": "file:../chat-qr-transaction",
     "couch-provider": "^2.3.1",
-    "hapi-jwt-couch": "^4.1.0",
+    "hapi-jwt-couch": "^4.2.0",
     "lout": "^11.2.3",
     "nodemailer": "^4.0.1",
     "nodemailer-stub-transport": "^1.1.0",

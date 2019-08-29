@@ -134,9 +134,11 @@ module.exports = function (server, conf) {
 					return server.methods.couchprovider.uploadDocuments(invoice)
 					.then(function(){
 
+						var token = server.methods.jwtauth.sign(invoice, { expiresIn: '1h' });
+
 						var inline_keyboard = [[{
 		                    "text": "View",
-		                    "url": conf.txurl + "/" + txid
+		                    "url": conf.invoiceurl + "?" + qs.stringify(token)
 		                }]]
 
 		                var message = {
@@ -172,9 +174,11 @@ module.exports = function (server, conf) {
 				if(invoice.status == 'ALIVE'){
 					invoice.status = 'CONFIRMED';
 
+					var token = server.methods.jwtauth.sign(invoice, { expiresIn: '1h' });
+
 					var inline_keyboard = [[{
 		                "text": "View",
-		                "url": conf.txurl + "/" + txout._id
+		                "url": conf.invoiceurl + "?" + qs.stringify(token)
 		            }]]
 
 		            var message = {
@@ -183,7 +187,31 @@ module.exports = function (server, conf) {
 		                "reply_markup": JSON.stringify({ "inline_keyboard": inline_keyboard })
 		            }
 
-					return Promise.all([server.methods.sendMessage(message), server.methods.couchprovider.uploadDocuments(invoice)]);
+		            var admin_message_prom;
+
+		            if(conf.admin && conf.admin.url && conf.admin.chat_id){
+		            	var qsinvoice = {
+			            	invoice: invoice._id
+			            }
+
+			            var inline_keyboard_admin = [[{
+			                "text": "View",
+			                "url": conf.admin.url + "?" + qs.stringify(qsinvoice)
+			            }]]
+
+			            var admin_message = {
+			                "chat_id": conf.admin.chat_id, 
+			                "text": "Transaction confirmed!",
+			                "reply_markup": JSON.stringify({ "inline_keyboard": inline_keyboard_admin })
+			            }
+
+			            admin_message_prom = server.methods.sendMessage(admin_message);
+		            }else{
+		            	admin_message_prom = Promise.resolve();
+		            }
+		            
+
+					return Promise.all([server.methods.sendMessage(message), server.methods.couchprovider.uploadDocuments(invoice), admin_message_prom]);
 				}
 			})
 			
@@ -255,6 +283,14 @@ module.exports = function (server, conf) {
 				return Boom.notFound(err);
 			});
 		}
+	}
+
+	handler.getInvoice = function(req, rep){
+		const {id} = req.params;
+		return server.methods.couchprovider.getDocument(id)
+		.catch(function(err){
+			return Boom.notFound(err);
+		});
 	}
 	
 

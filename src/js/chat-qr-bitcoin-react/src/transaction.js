@@ -194,7 +194,7 @@ class Transaction extends Component{
     const self = this;
     
     const {transaction} = self.state;
-    console.log(transaction)
+    
     return (<Container fluid="true">
         <Card>
           <Card.Header style={{padding: 0}}><Alert variant="info" style={{margin: 0}}><h5>Transaction</h5></Alert></Card.Header>

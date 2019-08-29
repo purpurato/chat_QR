@@ -46,6 +46,13 @@ export default class ChatQrService{
     });
   }
 
+  getInvoice(id){
+    return this.http({
+      method: 'GET',
+      url: '/invoice/' + id
+    });
+  }
+
   getCurrencies(){
     return this.http({
       method: 'GET',

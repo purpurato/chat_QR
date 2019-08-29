@@ -28,6 +28,20 @@ module.exports = function (server, conf) {
 		"currency": Joi.string()
 	});
 
+	const joiinvoiceget = Joi.object().keys({
+		"_id": Joi.string(),
+		"_rev": Joi.string(),
+		"type": Joi.string().valid("invoice"),
+		"chat_id": Joi.number(),
+		"qr_string": Joi.string(),
+		"date": Joi.number(),
+		"status": Joi.string(),
+		"rate": Joi.number(),
+		"invoice": Joi.number(),
+		"value": Joi.number(),
+		"txid": Joi.string().optional()
+	});
+
 	server.route({
 		path: '/businesses',
 		method: 'GET',
@@ -86,7 +100,33 @@ module.exports = function (server, conf) {
 			    params: null,
 			    payload: false
 			},
+			response: {
+				schema: Joi.object().pattern(Joi.number(), Joi.array().items(joiinvoiceget))
+			},
 			description: 'Get all invoices for the current user. Returns all if admin'
+	    }
+	});
+
+	server.route({
+		method: 'GET',
+		path: "/invoice/{id}",
+		config: {
+			auth: {
+                strategy: 'token',
+                scope: ['business']
+            },
+			handler: handlers.getInvoice,
+			validate: {
+			  	query: false,
+			    params: {
+			  		id: Joi.string()
+			  	},
+			    payload: false
+			},
+			response: {
+				schema: joiinvoiceget
+			},
+			description: 'Get an invoice.'
 	    }
 	});
 

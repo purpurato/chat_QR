@@ -124,9 +124,14 @@ class App extends Component {
     const {user} = this.state;
     return (
       <Container>
-        
           <Invoices txurl="/node/tx"/>
-        
+      </Container>);
+  }
+
+  public_invoice(){
+    return (
+      <Container>
+          <Invoices txurl="/node/tx" public_invoice/>
       </Container>);
   }
 
@@ -189,6 +194,7 @@ class App extends Component {
             <Route path="/admin/wallets" component={this.wallets.bind(this)}/>
             <Route path="/home" component={this.home.bind(this)}/>
             <Route path="/node/tx/:txid" component={this.transaction.bind(this)}/>
+            <Route path="/invoice" component={this.public_invoice.bind(this)}/>
             <Route exact path="/" component={this.welcome.bind(this)}/>
           </Container>
           <footer class="alert alert-dark" style={{fontSize: "small", width: "100%"}}>
