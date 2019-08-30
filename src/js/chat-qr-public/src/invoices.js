@@ -38,12 +38,12 @@ class Invoices extends Component{
   componentDidMount(){
   	const self = this;
 
-    const {public_invoice} = self.props;
+    const {public_invoice, admin_invoice} = self.props;
 
     if(public_invoice){
       self.decodeInvoiceToken();
     }else{
-      Promise.all([self.getInvoices(), self.getInvoice()]);  
+      Promise.all([self.getInvoices(), self.getInvoice()]);
     }
     
   }
@@ -103,6 +103,14 @@ class Invoices extends Component{
     });
   }
 
+  verifyUnconfirmedInvoices(){
+    const self = this;
+    self.chatqrservice.verifyInvoices()
+    .then(function(res){
+      console.log(res);
+    })
+  }
+
   getScatter(invoices, selectedCurrency){
     const self = this;
     const length = invoices.length;
@@ -145,19 +153,31 @@ class Invoices extends Component{
 
   }
 
-  drawInvoice(){
+  drawSingleInvoiceTransactionButton(selectedInvoice){
     const self = this;
     const {txurl, history} = self.props;
-    const {selectedInvoice, selectedBusiness} = self.state;
+
+    var txids = selectedInvoice.txids? selectedInvoice.txids: [selectedInvoice.txid];
+
+    if(txids[0]){
+      return _.map(txids, function(txid){
+        return (<Button onClick={()=>{history.push(txurl + "/" + txid)}} ><Activity/></Button>);
+      });  
+    }else{
+      return '';
+    }
+  }
+
+  drawSingleInvoice(selectedInvoice, selectedBusiness){
+    const self = this;
 
     var displayBusinessName = '';
     
-    if(!_.isEmpty(selectedBusiness)){
+    if(selectedBusiness && !_.isEmpty(selectedBusiness)){
       displayBusinessName = selectedBusiness.name;
     }
-    
-    if(!_.isEmpty(selectedInvoice)){
-      return (
+
+    return (
         <Card>
           <Card.Header as="h5" style={{padding: 0}}><Alert variant="info" style={{marginBottom: 0}}>Invoice {displayBusinessName}</Alert></Card.Header>
           <Card.Body>
@@ -203,13 +223,22 @@ class Invoices extends Component{
                 </ListGroup.Item>
                 <ListGroup.Item variant="light">
                   <Row>
-                    <Col>Transaction</Col><Col style={{textAlign: "right"}}><Button onClick={()=>{history.push(txurl + "/" + selectedInvoice.txid)}} ><Activity/></Button></Col>
+                    <Col>Transaction</Col><Col style={{textAlign: "right"}}>{self.drawSingleInvoiceTransactionButton(selectedInvoice)}</Col>
                   </Row>
                 </ListGroup.Item>
               </ListGroup>
             </Alert>
           </Card.Body>
         </Card>)
+  }
+
+  drawInvoice(){
+    const self = this;
+    const {history} = self.props;
+    const {selectedInvoice, selectedBusiness} = self.state;
+    
+    if(!_.isEmpty(selectedInvoice)){
+      return self.drawSingleInvoice(selectedInvoice, selectedBusiness);
     }
     return '';
   }
@@ -254,10 +283,29 @@ class Invoices extends Component{
       </Card>);
   }
 
-  render() {
+  drawUnconfirmedInvoices(){
     const self = this;
     const {invoices} = self.state;
-    const {public_invoice} = self.props;
+
+    return _.map(invoices, function(inv_buss){
+      var unconfirmed = _.filter(inv_buss.invoices, function(inv){
+        return inv.status === 'CREATED' || inv.status === 'ALIVE';
+      });
+
+      return (<Row>
+        {
+          _.map(unconfirmed, function(unc_inv){
+            return (<Col>{self.drawSingleInvoice(unc_inv)}</Col>);
+          })
+        }
+        </Row>
+      );
+    })
+  }
+
+  render() {
+    const self = this;
+    const {public_invoice, admin_invoice} = self.props;
     
     if(public_invoice){
       return (<Container fluid="true">
@@ -267,6 +315,17 @@ class Invoices extends Component{
           </Col>
         </Row>
     </Container>);
+    }else if(admin_invoice){
+      return (<Container fluid="true">
+        <Row>
+          <ButtonToolbar>
+              <Button onClick={(e)=>{self.verifyUnconfirmedInvoices(e)}}><Activity/> Verify all invoices</Button>
+            </ButtonToolbar>
+        </Row>
+        <Row>
+          {self.drawUnconfirmedInvoices()}
+        </Row>
+      </Container>);
     }else{
       return (<Container fluid="true">
         <Row>
@@ -279,7 +338,7 @@ class Invoices extends Component{
             {self.drawInvoice()}
           </Col>
         </Row>
-    </Container>);
+      </Container>);
     }
   }
 }

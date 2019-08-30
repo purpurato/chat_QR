@@ -108,12 +108,16 @@ class App extends Component {
       </Row>);
   }
 
-  wallets(){
+  adminWallets(){
     return (<Container>
         <Row class="justify-content-center">
           <Wallets/>
         </Row>
       </Container>);
+  }
+
+  adminInvoices(){
+    return (<Invoices txurl="/node/tx" admin_invoice/>); 
   }
 
   transaction(){
@@ -122,17 +126,11 @@ class App extends Component {
 
   home(){
     const {user} = this.state;
-    return (
-      <Container>
-          <Invoices txurl="/node/tx"/>
-      </Container>);
+    return (<Invoices txurl="/node/tx"/>);
   }
 
   public_invoice(){
-    return (
-      <Container>
-          <Invoices txurl="/node/tx" public_invoice/>
-      </Container>);
+    return (<Invoices txurl="/node/tx" public_invoice/>);
   }
 
   welcome(){
@@ -191,7 +189,8 @@ class App extends Component {
             <Route path="/user" component={this.profile.bind(this)}/>
             <Route path="/admin/users" component={this.adminUsers.bind(this)}/>
             <Route path="/admin/business" component={this.adminBusiness.bind(this)}/>
-            <Route path="/admin/wallets" component={this.wallets.bind(this)}/>
+            <Route path="/admin/wallets" component={this.adminWallets.bind(this)}/>
+            <Route path="/admin/invoices" component={this.adminInvoices.bind(this)}/>
             <Route path="/home" component={this.home.bind(this)}/>
             <Route path="/node/tx/:txid" component={this.transaction.bind(this)}/>
             <Route path="/invoice" component={this.public_invoice.bind(this)}/>
