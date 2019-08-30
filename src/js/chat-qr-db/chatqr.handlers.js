@@ -111,17 +111,9 @@ module.exports = function (server, conf) {
 
 		if(scriptPubKey && scriptPubKey.addresses){
 			return Promise.map(scriptPubKey.addresses, function(address){
-				var v = '_design/business/_view/getCreatedInvoice';
-
-				var key = {
-					key: '"' + address + '"',
-					include_docs: true
-				}
-				v += '?' + qs.stringify(key);
-
-				return server.methods.couchprovider.getView(v)
-				.then(function(res){
-					return _.pluck(res, 'doc');
+				return server.methods.couchprovider.getDocument(address)
+				.catch(function(err){
+					return null;
 				});
 			})
 			.then(function(res){
@@ -129,26 +121,31 @@ module.exports = function (server, conf) {
 			})
 			.then(function(res){
 				return Promise.map(res, function(invoice){
-					invoice.txid = txid;
-					invoice.status = 'ALIVE';
-					return server.methods.couchprovider.uploadDocuments(invoice)
-					.then(function(){
+					if(invoice.status === 'CREATED' || (invoice.status !== 'CREATED' && invoice.txids && invoice.txids[invoice.txids.length - 1] !== txid)){
+						if(!invoice.txids){
+							invoice.txids = [];
+						}
+						invoice.txids.push(txid);
+						invoice.status = 'ALIVE';
+						return server.methods.couchprovider.uploadDocuments(invoice)
+						.then(function(){
 
-						var token = server.methods.jwtauth.sign(invoice, { expiresIn: '1h' });
+							var token = server.methods.jwtauth.sign(invoice, { expiresIn: '1h' });
 
-						var inline_keyboard = [[{
-		                    "text": "View",
-		                    "url": conf.invoiceurl + "?" + qs.stringify(token)
-		                }]]
+							var inline_keyboard = [[{
+			                    "text": "View",
+			                    "url": conf.invoiceurl + "?" + qs.stringify(token)
+			                }]]
 
-		                var message = {
-		                    "chat_id": invoice.chat_id, 
-		                    "text": "New transaction",
-		                    "reply_markup": JSON.stringify({ "inline_keyboard": inline_keyboard })
-		                }
+			                var message = {
+			                    "chat_id": invoice.chat_id, 
+			                    "text": "New transaction",
+			                    "reply_markup": JSON.stringify({ "inline_keyboard": inline_keyboard })
+			                }
 
-						return server.methods.sendMessage(message);
-					});
+							return server.methods.sendMessage(message);
+						});
+					}
 				})
 			});	
 		}else{
@@ -156,66 +153,66 @@ module.exports = function (server, conf) {
 		}
 	}
 
-	const confirmInvoice = function(txout){
-		var v = '_design/business/_view/getInvoiceByTxid';
+	const confirmInvoice = function(txout, vout){
+		const {scriptPubKey} = vout;
 
-		var key = {
-			include_docs: true,
-			key: '"' + txout._id + '"'
-		}
-		v += '?' + qs.stringify(key);
-		
-		return server.methods.couchprovider.getView(v)
-		.then(function(res){
-			return _.pluck(res, 'doc');
-		})
-		.then(function(invoices){
-			return Promise.map(invoices, function(invoice){
-				if(invoice.status == 'ALIVE'){
-					invoice.status = 'CONFIRMED';
+		if(scriptPubKey && scriptPubKey.addresses){
+			return Promise.map(scriptPubKey.addresses, function(address){
+				return server.methods.couchprovider.getDocument(address)
+				.catch(function(err){
+					return null;
+				});
+			})
+			.then(function(res){
+				return _.compact(_.flatten(res));
+			})
+			.then(function(invoices){
+				return Promise.map(invoices, function(invoice){
+					if(invoice.status == 'ALIVE'){
+						invoice.status = 'CONFIRMED';
 
-					var token = server.methods.jwtauth.sign(invoice, { expiresIn: '1h' });
+						var token = server.methods.jwtauth.sign(invoice, { expiresIn: '1h' });
 
-					var inline_keyboard = [[{
-		                "text": "View",
-		                "url": conf.invoiceurl + "?" + qs.stringify(token)
-		            }]]
-
-		            var message = {
-		                "chat_id": invoice.chat_id, 
-		                "text": "Transaction confirmed!",
-		                "reply_markup": JSON.stringify({ "inline_keyboard": inline_keyboard })
-		            }
-
-		            var admin_message_prom;
-
-		            if(conf.admin && conf.admin.url && conf.admin.chat_id){
-		            	var qsinvoice = {
-			            	invoice: invoice._id
-			            }
-
-			            var inline_keyboard_admin = [[{
+						var inline_keyboard = [[{
 			                "text": "View",
-			                "url": conf.admin.url + "?" + qs.stringify(qsinvoice)
+			                "url": conf.invoiceurl + "?" + qs.stringify(token)
 			            }]]
 
-			            var admin_message = {
-			                "chat_id": conf.admin.chat_id, 
+			            var message = {
+			                "chat_id": invoice.chat_id, 
 			                "text": "Transaction confirmed!",
-			                "reply_markup": JSON.stringify({ "inline_keyboard": inline_keyboard_admin })
+			                "reply_markup": JSON.stringify({ "inline_keyboard": inline_keyboard })
 			            }
 
-			            admin_message_prom = server.methods.sendMessage(admin_message);
-		            }else{
-		            	admin_message_prom = Promise.resolve();
-		            }
-		            
+			            var admin_message_prom;
 
-					return Promise.all([server.methods.sendMessage(message), server.methods.couchprovider.uploadDocuments(invoice), admin_message_prom]);
-				}
-			})
-			
-		});
+			            if(conf.admin && conf.admin.url && conf.admin.chat_id){
+			            	var qsinvoice = {
+				            	invoice: invoice._id
+				            }
+
+				            var inline_keyboard_admin = [[{
+				                "text": "View",
+				                "url": conf.admin.url + "?" + qs.stringify(qsinvoice)
+				            }]]
+
+				            var admin_message = {
+				                "chat_id": conf.admin.chat_id, 
+				                "text": "Transaction confirmed!",
+				                "reply_markup": JSON.stringify({ "inline_keyboard": inline_keyboard_admin })
+				            }
+
+				            admin_message_prom = server.methods.sendMessage(admin_message);
+			            }else{
+			            	admin_message_prom = Promise.resolve();
+			            }
+			            
+
+						return Promise.all([server.methods.sendMessage(message), server.methods.couchprovider.uploadDocuments(invoice), admin_message_prom]);
+					}
+				})
+			});
+		}
 	}
 
 	const getChatIdByEmail = function(credentials){
@@ -254,7 +251,7 @@ module.exports = function (server, conf) {
 			})
 			.then(function(keys){
 				return Promise.map(keys, function(key){
-					var v = '_design/business/_view/getInvoice';
+					var v = '_design/business/_view/getInvoiceByChatId';
 					v += '?' + qs.stringify(key);
 					return server.methods.couchprovider.getView(v);
 				})
@@ -272,7 +269,7 @@ module.exports = function (server, conf) {
 			var key = {
 				include_docs: true
 			}
-			var v = '_design/business/_view/getInvoice';
+			var v = '_design/business/_view/getInvoiceByChatId';
 			v += '?' + qs.stringify(key);
 			
 			return server.methods.couchprovider.getView(v)
@@ -285,6 +282,91 @@ module.exports = function (server, conf) {
 		}
 	}
 
+	const verifyCreatedInvoices = function(){
+		var key = {
+			include_docs: true,
+			key: '"CREATED"'
+		}
+		var v = '_design/business/_view/getInvoiceByStatus';
+		v += '?' + qs.stringify(key);
+
+		return server.methods.couchprovider.getView(v)
+		.then(function(res){
+			return _.groupBy(_.pluck(res, 'doc'), 'chat_id');
+		})
+		.then(function(grouped_invoices){
+			
+			return Promise.all(_.map(grouped_invoices, function(invoices, chat_id){
+
+				var key_w = {
+					key: '"' + chat_id + '"'
+				}		
+				var v_w = '_design/business/_view/getWallets?' + qs.stringify(key_w);
+				
+				return server.methods.couchprovider.getView(v_w)
+				.then(function(res){
+					return _.pluck(res, 'value')[0];
+				})
+				.then(function(wallet){
+					return Promise.map(invoices, function(invoice){
+						return server.methods.listreceivedbyaddress(wallet.wallet_name, [1, false, false, invoice._id])
+						.then(function(r){
+							return r.result;
+						});
+					})
+				})
+			}));
+		})
+		.then(_.flatten)
+		.then(function(results){
+			return _.filter(_.compact(results), function(res){
+				return res.result && res.result.length > 0;
+			});
+		})
+		.then(function(results){
+			return Promise.map(results, function(res){
+				var txids = _.uniq(_.flaten(_.pluck(result, 'txids')));
+				return Promise.map(txids, function(txid){
+					return server.methods.getrawtransaction([txid, 1])
+					.then(function(txout){
+						return newTransaction(txout, txout.txid);
+					})
+				}, {concurrency: 1});
+			});
+		});
+	}
+
+	const verifyAliveInvoices = function(){
+		var key = {
+			include_docs: true,
+			key: '"ALIVE"'
+		}
+		var v = '_design/business/_view/getInvoiceByStatus';
+		v += '?' + qs.stringify(key);
+
+		return server.methods.couchprovider.getView(v)
+		.then(function(res){
+			return _.pluck(res, 'doc');
+		})
+		.then(function(invoices){
+			var txids = _.pluck(invoices, "txid");
+			return Promise.map(txids, function(txid){
+				return server.methods.getrawtransaction([txid, 1])
+				.then(function(txout){
+					return newTransaction(txout, txout.txid);
+				});
+			})
+		});
+	}
+
+	handler.verifyInvoices = function(req, rep){
+		return Promise.all([verifyCreatedInvoices(), verifyAliveInvoices()])
+		.catch(function(err){
+			console.log(err)
+			return Boom.notFound(err);
+		});
+	}
+
 	handler.getInvoice = function(req, rep){
 		const {id} = req.params;
 		return server.methods.couchprovider.getDocument(id)
@@ -294,43 +376,25 @@ module.exports = function (server, conf) {
 	}
 	
 
+
+	const newTransaction = function(txout){
+		if(txout.confirmations){
+			return Promise.map(txout.vout, function(vout){
+				return confirmInvoice(txout, vout);
+			});
+		}else{
+			return Promise.map(txout.vout, function(vout){
+				return updateInvoice(txout.txid, vout);
+			});
+		}
+	}
 	/*
 	*/
 	handler.newTransaction = function(req, rep){
 		const txout = req.payload;
-		const {txid} = req.params;
-		txout.type = 'transaction'
-		txout._id = txid;
-
-		return server.methods.couchprovider.getDocument(txid)
-		.then(function(txdoc){
-			txout._rev = txdoc._rev;
-
-			if(txout.confirmations > 0){
-				return confirmInvoice(txout)
-				.then(function(){
-					return txout;
-				});
-			}
-
-			return txout;
-			
-		})
-		.catch(function(res){
-			return Promise.map(txout.vout, function(vout){
-				return updateInvoice(txout._id, vout)
-				.then(function(){
-					return txout;
-				});
-			});
-		})
-		.then(function(txout){
-			return server.methods.couchprovider.uploadDocuments(txout);
-		})
-		.catch(function(err){
-			return Boom.notFound(err);
-		});
-	
+		// const {txid} = req.params;
+		
+		return newTransaction(txout);
 	}
 
 	/*
@@ -341,15 +405,17 @@ module.exports = function (server, conf) {
 		block._id = hash;
 		block.type = 'block';
 
-		return Promise.any(_.map(block.tx, function(txid){
-			return server.methods.couchprovider.getDocument(txid);
-		}))
-		.then(function(transaction){
-			return server.methods.couchprovider.uploadDocuments(block);	
-		})
-		.catch(function(err){
-			return Boom.notFound(err);
-		})
+		return true;
+
+		// return Promise.any(_.map(block.tx, function(txid){
+		// 	return server.methods.couchprovider.getDocument(txid);
+		// }))
+		// .then(function(transaction){
+		// 	return server.methods.couchprovider.uploadDocuments(block);	
+		// })
+		// .catch(function(err){
+		// 	return Boom.notFound(err);
+		// })
 	}
 
 	/*
