@@ -1,9 +1,0 @@
-{
-    "_id": "_design/transactions",
-    "language": "javascript",
-    "views": {
-        "getChatId": {
-            "map": "function(doc) {\n\tif(doc.type == \"transaction\" && doc.transaction && doc.transaction.x && doc.transaction.x.hash){\n\t\temit(doc.transaction.x.hash, doc.chat_id)\n\t}\n}"
-        }
-    }
-}
