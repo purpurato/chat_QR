@@ -94,7 +94,7 @@ exports.plugin = {
 			method: function(message){
 				return this.telegram.sendPhoto(message)
 				.catch(function(e){
-					console.error("sendMessage", e);
+					console.error("sendPhoto", e);
 				});;
 			},
 			options: {
@@ -104,5 +104,19 @@ exports.plugin = {
 			}
 		});
 
+		server.method({
+			name: 'deleteMessage',
+			method: function(params){
+				return this.telegram.deleteMessage(params)
+				.catch(function(e){
+					console.error("deleteMessage", e);
+				});;
+			},
+			options: {
+				bind: {
+					telegram: api
+				}
+			}
+		});
 	}
 };
