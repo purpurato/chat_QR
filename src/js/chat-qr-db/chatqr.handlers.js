@@ -139,11 +139,14 @@ module.exports = function (server, conf) {
 
 			                var message = {
 			                    "chat_id": invoice.chat_id, 
-			                    "text": "New transaction",
+			                    "text": "Transacción recibida por " + invoice.value + " BTC" ,
 			                    "reply_markup": JSON.stringify({ "inline_keyboard": inline_keyboard })
 			                }
 
 							return server.methods.sendMessage(message);
+						})
+						.then(function(){
+							return server.methods.chat_qr.deleteInvoiceMessage(invoice);
 						});
 					}
 				})
@@ -170,6 +173,10 @@ module.exports = function (server, conf) {
 				return Promise.map(invoices, function(invoice){
 					if(invoice.status == 'ALIVE'){
 						invoice.status = 'CONFIRMED';
+						if(!invoice.txids){
+							//The txids should be added in the update step
+							invoice.txids = [txout.txid];
+						}
 
 						var token = server.methods.jwtauth.sign(invoice, { expiresIn: '1h' });
 
@@ -180,7 +187,7 @@ module.exports = function (server, conf) {
 
 			            var message = {
 			                "chat_id": invoice.chat_id, 
-			                "text": "Transaction confirmed!",
+			                "text": "Transacción confirmada por " + invoice.value,
 			                "reply_markup": JSON.stringify({ "inline_keyboard": inline_keyboard })
 			            }
 
