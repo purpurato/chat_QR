@@ -5,6 +5,7 @@ const request = require('request');
 const Promise = require('bluebird');
 const qs = require('querystring');
 const _ = require('underscore');
+const crontab = require('node-crontab');
 
 module.exports = function(server, conf){
 	class ChatQrHandler {
@@ -58,7 +59,7 @@ module.exports = function(server, conf){
 		sendChangeAddressType(chat_id, address){
 			return server.methods.sendMessage({
 				chat_id: chat_id,
-				text: "Change address type",
+				text: "Cambiar tipo de dirección para recibir bitcoins.",
 				reply_markup: JSON.stringify({
 					inline_keyboard: [[{
 						text: "bech32",
@@ -90,7 +91,7 @@ module.exports = function(server, conf){
 				chat_id: chat_id,
 				text: "Options",
 				reply_markup: JSON.stringify({
-					keyboard: [["Help", "Contact", "Issues"]],
+					keyboard: [["Ayuda", "Contacto", "Problema"]],
 					resize_keyboard: true,
 					one_time_keyboard: false
 				})
@@ -130,27 +131,75 @@ module.exports = function(server, conf){
 
 				return server.methods.couchprovider.uploadDocuments([transaction_doc])
 				.then(function(res){
-					
-					return server.methods.sendPhoto({
+					return server.methods.sendMessage({
 						chat_id: message.chat.id,
-						photo: qr_png
+						text: "Nueva factura por valor: $" + invoice + " COP = " + amount.amount + " BTC. " + rate + " COP/BTC" 
 					})
+					.bind({})
 					.then(function(){
+						return server.methods.sendPhoto({
+							chat_id: message.chat.id,
+							photo: qr_png
+						})
+					})
+					.then(function(res){
+						this.qr_msg = res;
 						return server.methods.sendMessage({
 							chat_id: message.chat.id,
 							text: qr_string
 						});
 					})
-					.then(function(){
+					.then(function(res){
+						this.bit_msg = res;
 						return self.sendChangeAddressType(message.chat.id, address);
+					})
+					.then(function(res){
+						this.add_msg = res;
+						this.timestamp = Date.now();
+						this.type = 'invoice_msg';
+						this._id = address + "msg";
+						return server.methods.couchprovider.uploadDocuments(this);
 					});
 				});
 			})
 			.catch(function(err){
+				console.error(err);
 				return server.methods.sendMessage({
 					chat_id: message.chat.id,
-					text: "You don't have a business account in bit-2cash.com yet, please contact @purpurato to create one. Your chat id is: " + message.chat.id
+					text: "Tu chat id es: " + message.chat.id + ". Aún no tienes una cuenta en bit2cash.site, por favor contacta @purpurato para crear una nueva."
 				})
+			})
+		}
+
+		deleteInvoiceMessage(invoice_msg){
+			return Promise.all([
+				server.methods.deleteMessage({message_id: invoice_msg.qr_msg_id, chat_id: invoice_msg.chat_id}),
+				server.methods.deleteMessage({message_id: invoice_msg.bit_msg_id, chat_id: invoice_msg.chat_id}),
+				server.methods.deleteMessage({message_id: invoice_msg.add_msg_id, chat_id: invoice_msg.chat_id})
+			])
+			.then(function(){
+				return server.methods.couchprovider.deleteDocument(invoice_msg);	
+			});
+		}
+
+		deleteInvoiceMessages(delta_milliseconds){
+			const self = this;
+			var key = {
+				startkey: 0,
+				endkey: Date.now() - delta_milliseconds
+			}
+
+			var v = '_design/business/_view/getInvoiceMsg';
+			v += '?' + qs.stringify(key);
+
+			return server.methods.couchprovider.getView(v)
+			.then(function(res){
+				return _.pluck(res, 'value');
+			})
+			.then(function(res){
+				return Promise.map(res, function(invoice_msg){
+					return self.deleteInvoiceMessage(invoice_msg);
+				});
 			})
 		}
 
@@ -178,37 +227,37 @@ module.exports = function(server, conf){
 					doc.qr_string = qr_string;
 
 					var qr_png = self.getQrPicture(qr_string);
-					return Promise.all([server.methods.couchprovider.uploadDocuments(doc), server.methods.couchprovider.deleteDocument(doc_old)])
+					return Promise.all([server.methods.couchprovider.uploadDocuments(doc), server.methods.couchprovider.deleteDocument(doc_old), server.methods.chat_qr.deleteInvoiceMessage(doc_old)])
 					.then(function(){
 						return [qr_png, addtype, address, qr_string];
 					});
 				});
 			})
 			.spread(function(qr_png, addtype, address, qr_string){
-				return server.methods.sendMessage({
+				return server.methods.sendPhoto({
 					chat_id: chat_id,
-					text: addtype + ":"
+					photo: qr_png
 				})
-				.then(function(){
-					return server.methods.sendPhoto({
-						chat_id: chat_id,
-						photo: qr_png
-					});
-				})
-				.then(function(){
+				.bind({})
+				.then(function(res){
+					this.qr_msg = res;
 					return server.methods.sendMessage({
 						chat_id: chat_id,
-						text: qr_string
+						text: addtype + ": " + qr_string
 					});
 				})
-				.then(function(){
+				.then(function(res){
+					this.bit_msg = res;
 					return self.sendChangeAddressType(chat_id, address);
 				})
-			})
-			.then(function(){
-
-			})
-			
+				.then(function(res){
+					this.add_msg = res;
+					this.timestamp = Date.now();
+					this.type = 'invoice_msg';
+					this._id = address + "msg";
+					return server.methods.couchprovider.uploadDocuments(this);
+				});
+			})			
 		}
 	}
 
@@ -218,6 +267,28 @@ module.exports = function(server, conf){
 		name: 'getCurrencies',
 		method: chat_qr_handler.getCurrencies,
 		options: {}
+	});
+
+	server.method({
+		name: 'chat_qr.deleteInvoiceMessage',
+		method: (invoice)=>{
+			return server.methods.couchprovider.getDocument(invoice._id + "msg")
+			.then(function(invoice_msg){
+				return chat_qr_handler.deleteInvoiceMessage({
+			      _id: invoice_msg._id,
+			      _rev: invoice_msg._rev,
+			      qr_msg_id: invoice_msg.qr_msg.message_id,
+			      bit_msg_id: invoice_msg.bit_msg.message_id,
+			      add_msg_id: invoice_msg.add_msg.message_id,
+			      chat_id: invoice_msg.qr_msg.chat.id
+			    });	
+			});
+		},
+		options: {}
+	});
+	
+	var jobId = crontab.scheduleJob("*/1 * * * *", function(){
+	    chat_qr_handler.deleteInvoiceMessages(20*60000);
 	});
 
 	return chat_qr_handler;
