@@ -4,15 +4,7 @@ const Promise = require('bluebird');
 const Boom = require('@hapi/boom');
 const qs = require('querystring');
 
-// var couchUpdateViews = require('couch-update-views'););
-
 module.exports = function (server, conf) {
-
-	// if(!server.methods.clusterprovider){
-	// 	throw new Error("Have you installed the 'couch-provider' plugin with namespace 'clusterprovider'?");
-	// }
-
-	// couchUpdateViews.migrateUp(server.methods.clusterprovider.getCouchDBServer(), path.join(__dirname, 'views'), true);
 
 	const getBusiness = function(chat_id){
 		var key = {
