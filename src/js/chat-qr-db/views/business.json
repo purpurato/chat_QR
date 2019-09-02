@@ -13,6 +13,9 @@
         },
         "getInvoiceByChatId": {
             "map": "function(doc) {\n\tif(doc.type == \"invoice\"){\n\t\t  emit(doc.chat_id, doc.value);\t\n\t}\n}"
+        },
+        "getInvoiceMsg": {
+            "map": "function (doc) {\n  if(doc.type == \"invoice_msg\"){\n    emit(doc.timestamp, {\n      _id: doc._id,\n      _rev: doc._rev,\n      qr_msg_id: doc.qr_msg.message_id,\n      bit_msg_id: doc.bit_msg.message_id,\n      add_msg_id: doc.add_msg.message_id,\n      chat_id: doc.qr_msg.chat.id\n    });\n  }\n}"
         }
     }
 }
