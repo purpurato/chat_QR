@@ -122,14 +122,15 @@ class Invoices extends Component{
     
     return _.map(filteredInvoices, function(invoice, index){
       var color = Color.hsv(Math.floor(360*(index/length)), 100, 100).string();
+      var business = invoice.business;
       return (
-        <Scatter name={invoice.business.name} data={invoice.invoices} fill={color} onClick={(invoice)=>{
+        <Scatter name={business.name} data={invoice.invoices} fill={color} onClick={(invoice)=>{
           history.push({
             search: qs.stringify({
               invoice: invoice._id
             })
           });
-          self.setState({...self.state, selectedInvoice: invoice});
+          self.setState({...self.state, selectedInvoice: invoice, selectedBusiness: business});
         }}/>
       )
     })
@@ -172,7 +173,6 @@ class Invoices extends Component{
     const self = this;
 
     var displayBusinessName = '';
-    
     if(selectedBusiness && !_.isEmpty(selectedBusiness)){
       displayBusinessName = selectedBusiness.name;
     }
