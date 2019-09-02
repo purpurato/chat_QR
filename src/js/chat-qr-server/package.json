@@ -30,7 +30,9 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "lab -v test.js"
+    "dev": "NODE_ENV=test nodemon index.js",
+    "test": "lab -v test.js",
+    "start": "NODE_ENV=production node index.js"
   },
   "repository": {
     "type": "git",

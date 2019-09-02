@@ -62,6 +62,22 @@ module.exports = function (server, conf) {
 		options: {}
 	});
 
+	server.method({
+		name: 'listreceivedbyaddress',
+		method: function(wallet, params){
+			return bitlib.listreceivedbyaddress(wallet, params);
+		},
+		options: {}
+	});
+
+	server.method({
+		name: 'getrawtransaction',
+		method: function(params){
+			return bitlib.getrawtransaction(params);
+		},
+		options: {}
+	});
+
 	var handler = {};
 	/*
 	*/

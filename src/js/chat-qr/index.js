@@ -16,20 +16,26 @@ exports.plugin = {
 		{
 			if(message.text && message.text[0] == "$"){
 				handler.sendQrPicture(message);
-			}else if(message.text == "Help" || message.text == "help" || message.text == "ayuda"){
+			}else if(message.text == "Help" || message.text == "help" || message.text == "ayuda" || message.text == "Ayuda"){
 				server.methods.sendMessage({
 					chat_id: message.chat.id,
-					text: "To create a new QR type '$' + the amount of the transaction in COP. Ex: $10000"
+					text: "Para crear un nuevo QR escriba '$' + el monto de la transacción en COP. Ej: $10000."
+				})
+				.then(function(){
+					server.methods.sendMessage({
+						chat_id: message.chat.id,
+						text: "El QR será válido por 20 minutos. Una vez utilizado o pasado el tiempo de validez, este desaparecerá de la conversación."
+					})
 				});
-			}else if(message.text == "Contact" || message.text == "contact" || message.text == "contacto"){
+			}else if(message.text == "Contact" || message.text == "contact" || message.text == "contacto" || message.text == "Contacto"){
 				server.methods.sendMessage({
 					chat_id: message.chat.id,
-					text: "If you need any questions please contact help@bit-2cash.com @Purpurato"
+					text: "Si tiene alguna pregunta contactenos en @Purpurato o help@bit2cash.site"
 				});
-			}else if(message.text == "Issues" || message.text == "issues" || message.text == "problema"){
+			}else if(message.text == "Issues" || message.text == "issues" || message.text == "problema" || message.text == "Problema"){
 				server.methods.sendMessage({
 					chat_id: message.chat.id,
-					text: "If you need technical support please contact support@bit-2cash.com or @Juanprietob"
+					text: "Si necesita ayuda técnica contactenos en @Juanprietob o support@bit2cash.site"
 				});
 			}else if(message.text === '/start'){
 				handler.sendCustomKeyboard(message);
@@ -94,7 +100,7 @@ exports.plugin = {
 			method: function(message){
 				return this.telegram.sendPhoto(message)
 				.catch(function(e){
-					console.error("sendMessage", e);
+					console.error("sendPhoto", e);
 				});;
 			},
 			options: {
@@ -104,5 +110,19 @@ exports.plugin = {
 			}
 		});
 
+		server.method({
+			name: 'deleteMessage',
+			method: function(params){
+				return this.telegram.deleteMessage(params)
+				.catch(function(e){
+					console.error("deleteMessage", e);
+				});;
+			},
+			options: {
+				bind: {
+					telegram: api
+				}
+			}
+		});
 	}
 };

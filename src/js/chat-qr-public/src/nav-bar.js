@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import store from "./redux/store";
 import {withRouter} from 'react-router-dom';
-import {Home, User, Users, Cpu, Settings, LogOut, LogIn, CreditCard, Layers} from 'react-feather';
+import {Home, User, Users, Cpu, Settings, LogOut, LogIn, CreditCard, Layers, Archive} from 'react-feather';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
@@ -35,6 +35,7 @@ class NavBar extends Component{
             <NavDropdown.Item onClick={()=>{history.push('/admin/users')}}><Users/> Users</NavDropdown.Item>
             <NavDropdown.Item onClick={()=>{history.push('/admin/business')}}><Layers/> Business</NavDropdown.Item>
             <NavDropdown.Item onClick={()=>{history.push('/admin/wallets')}}><CreditCard/> Wallets</NavDropdown.Item>
+            <NavDropdown.Item onClick={()=>{history.push('/admin/invoices')}}><Archive/> Invoices</NavDropdown.Item>
           </NavDropdown>
         </Nav.Link>
         );

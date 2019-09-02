@@ -46,6 +46,13 @@ export default class ChatQrService{
     });
   }
 
+  verifyInvoices(){
+    return this.http({
+      method: 'PUT',
+      url: '/invoices'
+    });
+  }
+
   getInvoice(id){
     return this.http({
       method: 'GET',

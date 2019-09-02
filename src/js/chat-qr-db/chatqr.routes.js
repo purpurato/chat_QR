@@ -39,7 +39,8 @@ module.exports = function (server, conf) {
 		"rate": Joi.number(),
 		"invoice": Joi.number(),
 		"value": Joi.number(),
-		"txid": Joi.string().optional()
+		"txid": Joi.string().optional(),
+		"txids": Joi.array().optional()
 	});
 
 	server.route({
@@ -104,6 +105,24 @@ module.exports = function (server, conf) {
 				schema: Joi.object().pattern(Joi.number(), Joi.array().items(joiinvoiceget))
 			},
 			description: 'Get all invoices for the current user. Returns all if admin'
+	    }
+	});
+
+	server.route({
+		method: 'PUT',
+		path: "/invoices",
+		config: {
+			auth: {
+                strategy: 'token',
+                scope: ['admin']
+            },
+			handler: handlers.verifyInvoices,
+			validate: {
+			  	query: false,
+			    params: null,
+			    payload: false
+			},
+			description: 'Verify all created invoices to see if there are new transactions using the invoice address'
 	    }
 	});
 
