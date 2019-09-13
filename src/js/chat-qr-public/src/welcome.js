@@ -28,7 +28,9 @@ class LocationInfo extends Component{
     self.ref = {};
     self.state = {
       show: false,
-      target: null
+      target: null,
+      businessPublicInfo: [],
+      mapsKey: ''
     }
   }
 
@@ -88,7 +90,7 @@ class LocationInfo extends Component{
   }
 
   getMapIcon(business){
-    console.log(business.business_type)
+    
     if(_.find(["Restaurant", "Bar", "Cafe"], (bt)=>{return business.business_type == bt})){
       return (<Coffee/>);
     }else if(_.find(["Store", "Sport"], (bt)=>{return business.business_type == bt})){
@@ -156,7 +158,11 @@ class Welcome extends Component {
     const {http} = props;
     this.chatqrservice = new ChatQrService();
     this.chatqrservice.setHttp(http);
-    
+
+    self.chatqrservice.getMapsKey()
+    .then(function(res){
+      self.setState({...self.state, mapsKey: res.data});
+    })
   }
 
   componentDidMount(){
@@ -164,21 +170,15 @@ class Welcome extends Component {
     if(navigator && navigator.geolocation){
       navigator.geolocation.getCurrentPosition((position)=>{self.getLatLon(position)});
     }
-    self.getBusinessesPublicInfo();
+    self.chatqrservice.getBusinessesPublicInfo()
+    .then(function(res){
+      self.setState({...self.state, businessPublicInfo: res.data});
+    });
   }
 
   getLatLon(position) {
     const self = this;
     self.setState({...self.state, latitude: position.coords.latitude, longitude: position.coords.longitude});
-  }
-
-  getBusinessesPublicInfo(){
-    const self = this;
-    self.chatqrservice.getBusinessesPublicInfo()
-    .then(function(res){
-      self.setState({...self.state, businessPublicInfo: res.data});
-    })
-
   }
 
   drawLocations(){
@@ -194,9 +194,38 @@ class Welcome extends Component {
     });
   }
 
+  drawMap(){
+    const self = this;
+    const {latitude, longitude, mapsKey} = self.state;
+    
+    if(mapsKey){
+      return (<GoogleMapReact
+        bootstrapURLKeys={{key: mapsKey}}
+        defaultCenter={{lat: latitude, lng: longitude}}
+        defaultZoom={12}
+        onClick={(e)=>{
+          self.props.mapClicked(e);
+        }}
+      >
+      {self.drawLocations()}
+      </GoogleMapReact>)
+    }else{
+      return (<GoogleMapReact
+        defaultCenter={{lat: latitude, lng: longitude}}
+        defaultZoom={12}
+        onClick={(e)=>{
+          self.props.mapClicked(e);
+        }}
+      >
+      {self.drawLocations()}
+      </GoogleMapReact>)
+    }
+    
+  }
+
   render(){
     const self = this;
-    const {latitude, longitude} = self.state;
+    
     return (
       <Container>
         <Row>
@@ -237,16 +266,7 @@ class Welcome extends Component {
                 Nuestro mapa de clientes bit2cash
               </Card.Header>
               <Card.Body style={{ height: '90vh', width: '100%' }}>
-                <GoogleMapReact
-                  bootstrapURLKeys={{ key: 'AIzaSyBOYjZO2slg6tWX4bUYqSh0TC9jLu9Ui3A' }}
-                  defaultCenter={{lat: latitude, lng: longitude}}
-                  defaultZoom={12}
-                  onClick={(e)=>{
-                    self.props.mapClicked(e);
-                  }}
-                >
-                {this.drawLocations()}
-                </GoogleMapReact>
+                {self.drawMap()}
               </Card.Body>
             </Card>
           </Col>

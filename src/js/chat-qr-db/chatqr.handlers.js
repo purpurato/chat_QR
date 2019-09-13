@@ -436,5 +436,13 @@ module.exports = function (server, conf) {
 		});
 	}
 
+	handler.getMapsKey = function(req, rep){
+		if(conf.maps_key){
+			return conf.maps_key;
+		}else{
+			return '';
+		}
+	}
+
 	return handler;
 }

@@ -300,4 +300,18 @@ module.exports = function (server, conf) {
 	    }
 	});
 
+	server.route({
+		method: 'GET',
+		path: "/maps/key",
+		config: {
+			handler: handlers.getMapsKey,
+			validate: {
+			  	query: false,
+			    params: null,
+			    payload: false
+			},
+			description: 'Get the Google maps key'
+	    }
+	});
+
 }
