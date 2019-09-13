@@ -7,12 +7,24 @@ module.exports = function (server, conf) {
 	const joibusinesspost = Joi.object().keys({
 		"name": Joi.string(),
 		"users": Joi.array().items(Joi.string().email()),
-		"chat_id": Joi.string(),
+		"chat_ids": Joi.array().items(Joi.string()),
 		"type": Joi.string().valid("business"),
 		"wallet": Joi.object().keys({
 			"wallet_name": Joi.string()
 		}),
-		"currency": Joi.string()
+		"currency": Joi.string(),
+		"coordinates": Joi.object().keys({
+			longitude: Joi.number(),
+			latitude: Joi.number()
+		}),
+		"business_type": Joi.string(),
+		"url": Joi.string().uri().optional(),
+		"facebook": Joi.string().uri().optional(),
+		"instagram": Joi.string().uri().optional(),
+		"twitter": Joi.string().uri().optional(),
+		"whatsapp": Joi.string().optional(),
+		"maps": Joi.string().uri().optional(),
+		"description": Joi.string()
 	});
 
 	const joibusinessget = Joi.object().keys({
@@ -20,12 +32,40 @@ module.exports = function (server, conf) {
 		"_rev": Joi.string(),
 		"name": Joi.string(),
 		"users": Joi.array().items(Joi.string().email()),
-		"chat_id": Joi.string(),
 		"type": Joi.string().valid("business"),
 		"wallet": Joi.object().keys({
 			"wallet_name": Joi.string()
 		}),
-		"currency": Joi.string()
+		"currency": Joi.string(),
+		"chat_ids": Joi.array().items(Joi.string()),
+		"coordinates": Joi.object().keys({
+			longitude: Joi.number().allow(''),
+			latitude: Joi.number().allow('')
+		}),
+		"business_type": Joi.string().allow(''),
+		"url": Joi.string().uri().allow('').optional(),
+		"facebook": Joi.string().uri().allow('').optional(),
+		"instagram": Joi.string().uri().allow('').optional(),
+		"twitter": Joi.string().uri().allow('').optional(),
+		"whatsapp": Joi.string().allow('').optional(),
+		"maps": Joi.string().uri().allow('').optional(),
+		"description": Joi.string().allow('')
+	});
+
+	const joibusinessgetpublic = Joi.object().keys({
+		"name": Joi.string(),
+		"coordinates": Joi.object().keys({
+			longitude: Joi.number().allow(''),
+			latitude: Joi.number().allow('')
+		}),
+		"business_type": Joi.string().allow(''),
+		"url": Joi.string().uri().allow('').optional(),
+		"facebook": Joi.string().uri().allow('').optional(),
+		"instagram": Joi.string().uri().allow('').optional(),
+		"twitter": Joi.string().uri().allow('').optional(),
+		"whatsapp": Joi.string().allow('').optional(),
+		"maps": Joi.string().uri().allow('').optional(),
+		"description": Joi.string().allow('')
 	});
 
 	const joiinvoiceget = Joi.object().keys({
@@ -61,6 +101,23 @@ module.exports = function (server, conf) {
 				schema: Joi.array().items(joibusinessget)
 			},
 			description: 'This route will be used to fetch the existing businesses from the DB.'
+		}
+	});
+
+	server.route({
+		path: '/businesses/public',
+		method: 'GET',
+		config: {
+			handler: handlers.getBusinessesPublicInfo,
+			validate: {
+				query: false,
+		        payload: false,
+		        params: null
+			},
+			response: {
+				schema: Joi.array().items(joibusinessgetpublic)
+			},
+			description: 'This route will be used to fetch the existing businesses public info from the DB.'
 		}
 	});
 

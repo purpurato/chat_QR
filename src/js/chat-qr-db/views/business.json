@@ -3,7 +3,7 @@
     "language": "javascript",
     "views": {
         "getWallets": {
-            "map": "function(doc) {\n\tif(doc.type == \"business\"){\n\t\t  emit(doc.chat_id, doc.wallet);\t\n\t}\n}"
+            "map": "function(doc) {\n\tif(doc.type == \"business\"){\n\t  doc.chat_ids.forEach(function(chat_id){\n\t    emit(chat_id, doc.wallet);\n\t  });\t\n\t}\n}"
         },
         "getChatIdByEmail": {
             "map": "function(doc) {\n\tif(doc.type == \"business\"){\n\t    doc.users.forEach(function(email){\n\t      emit(email, doc.chat_id);\t  \n\t    });\n\t}\n}"
@@ -16,6 +16,9 @@
         },
         "getInvoiceMsg": {
             "map": "function (doc) {\n  if(doc.type == \"invoice_msg\"){\n    emit(doc.timestamp, {\n      _id: doc._id,\n      _rev: doc._rev,\n      qr_msg_id: doc.qr_msg.message_id,\n      bit_msg_id: doc.bit_msg.message_id,\n      add_msg_id: doc.add_msg.message_id,\n      chat_id: doc.qr_msg.chat.id\n    });\n  }\n}"
+        },
+        "getPublicInfo": {
+            "map": "function (doc) {\n  if(doc.type == \"business\"){\n    emit(doc.name, {\n      name: doc.name,\n  \t\tcoordinates: doc.coordinates,\n  \t\tbusiness_type: doc.business_type,\n  \t\turl: doc.url,\n  \t\tfacebook: doc.facebook, \n  \t\tinstagram: doc.instagram,\n  \t\ttwitter: doc.twitter,\n  \t\tmaps: doc.maps, \n  \t\twhatsapp: doc.whatsapp,\n  \t\tdescription: doc.description\n    });\n\t}\n}"
         }
     }
 }

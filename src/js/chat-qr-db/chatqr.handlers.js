@@ -21,7 +21,7 @@ module.exports = function (server, conf) {
 		return server.methods.couchprovider.getView(v)
 		.then(function(res){
 			return _.pluck(res, 'doc');
-		})
+		});
 	}
 
 	server.method({
@@ -67,6 +67,14 @@ module.exports = function (server, conf) {
 		return getBusiness()
 		.catch(function(err){
 			return Boom.notFound(err);
+		});
+	}
+
+	handler.getBusinessesPublicInfo = function(req, rep){
+		var v = '_design/business/_view/getPublicInfo';
+		return server.methods.couchprovider.getView(v)
+		.then(function(res){
+			return _.pluck(res, 'value');
 		});
 	}
 
