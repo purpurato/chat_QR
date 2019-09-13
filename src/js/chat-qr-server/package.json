@@ -1,6 +1,6 @@
 {
   "name": "chat-qr-server",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Server application for the chat-qr bot",
   "main": "index.js",
   "dependencies": {
@@ -20,7 +20,7 @@
     "chat-qr-db": "file:../chat-qr-db",
     "chat-qr-static": "file:../chat-qr-static",
     "chat-qr-transaction": "file:../chat-qr-transaction",
-    "couch-provider": "^2.3.1",
+    "couch-provider": "^3.0.1",
     "hapi-jwt-couch": "^4.2.0",
     "lout": "^11.2.3",
     "nodemailer": "^4.0.1",
