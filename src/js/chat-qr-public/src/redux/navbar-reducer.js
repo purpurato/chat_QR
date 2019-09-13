@@ -13,6 +13,18 @@ const navbarReducer = (state = initialState, action) => {
         showLogin: action.showLogin
       }
     }
+    case 'http-factory':{
+      return {
+        ...state,
+        http: action.http
+      }
+    }
+    case 'map-clicked':{
+      return {
+        ...state,
+        mapClicked: action.event
+      }
+    }
     default: {
       return state;
     }
