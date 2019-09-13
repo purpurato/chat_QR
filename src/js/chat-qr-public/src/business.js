@@ -20,19 +20,28 @@ class Business extends Component{
     this.defaultBusiness = {
       "name": "",
       "users": [],
-      "chat_id": "",
+      "chat_ids": [],
       "type": "business",
       "wallet": {
         "wallet_name": ""
       },
-      "currency": "COP"
+      "currency": "COP",
+      "coordinates": {
+        longitude: "",
+        latitude: ""
+      },
+      "business_type": "",
+      "url": "",
+      "description": ""
     };
 
     this.state = {
     	viewAddBusiness: false,
     	newBusiness: this.defaultBusiness,
     	businesses: [],
-      currencies: []
+      currencies: [],
+      addNewChatId: "",
+      addNewEmail: ""
     }
   }
 
@@ -133,12 +142,25 @@ class Business extends Component{
   	const {newBusiness} = self.state;
 
   	return _.map(newBusiness.users, function(e, index){
-  		return (<ListGroup.Item>{e} <Button variant="warning" onClick={()=>{
+  		return (<ListGroup.Item variant="light">{e} <Button variant="warning" onClick={()=>{
         	const {newBusiness} = self.state;
         	newBusiness.users.splice(index, 1);
         	self.setState({...self.state, newBusiness});
         }}><XCircle/></Button></ListGroup.Item>);
   	})
+  }
+
+  getBusinessChatIds(){
+    const self = this;
+    const {newBusiness} = self.state;
+
+    return _.map(newBusiness.chat_ids, function(e, index){
+      return (<ListGroup.Item variant="light">{e} <Button variant="warning" onClick={()=>{
+          const {newBusiness} = self.state;
+          newBusiness.chat_ids.splice(index, 1);
+          self.setState({...self.state, newBusiness});
+        }}><XCircle/></Button></ListGroup.Item>);
+    })
   }
 
   getCurrencies(){
@@ -150,9 +172,23 @@ class Business extends Component{
     });
   }
 
+  getBusinessType(){
+    return _.map(["Restaurant", "Bar", "Cafe", "Store", "Service", "Sport", "Transport"], function(type){
+      return (<option>{type}</option>)
+    })
+  }
+
   getAddNewBusiness(){
   	const self = this;
-    const {newBusiness, addNewEmail} = self.state;
+    const {newBusiness, addNewEmail, addNewChatId} = self.state;
+    var {coordinates} = newBusiness;
+
+    if(!coordinates){
+      coordinates = {
+        latitude: "",
+        longitude: ""
+      };
+    }
 
     return (
       <Card>
@@ -167,14 +203,29 @@ class Business extends Component{
                   this.setState({...this.state, newBusiness: business});
                 }}/>
               </Form.Group>
-              <Form.Group controlId="businessName">
+              
+              <Form.Group controlId="chatId">
                 <Form.Label>Chat Id</Form.Label>
-                <Form.Control type="number" placeholder="Telegram chat id" value={newBusiness.chat_id} onChange={(e)=>{
-                  var business = newBusiness;
-                  business.chat_id = e.target.value;
-                  this.setState({...this.state, newBusiness: business});
+
+                <Form.Control type="number" placeholder="Telegram chat id" value={addNewChatId} onChange={(e)=>{
+                  this.setState({...this.state, addNewChatId: e.target.value});
                 }}/>
+
+                <Button variant="info" onClick={()=>{
+                  const {newBusiness, addNewChatId} = self.state;
+                  newBusiness.chat_ids.push(addNewChatId);
+                  self.setState({...self.state, newBusiness, addNewChatId: ""});
+                }}>
+                  <PlusCircle/>
+                </Button>
+
+                
+                <ListGroup variant="info">
+                {self.getBusinessChatIds()}
+                </ListGroup>
+
               </Form.Group>
+
               <Form.Group controlId="businessUser">
                 <Form.Label>User email</Form.Label>
                 <Form.Control type="text" placeholder="Add user email" value={addNewEmail} onChange={(e)=>{
@@ -209,6 +260,95 @@ class Business extends Component{
                   {self.getCurrencies()}
                 </Form.Control>
               </Form.Group>
+
+              <Form.Group controlId="coordinates">
+                <Form.Label>Coordinates</Form.Label>
+                <Form.Control type="number" placeholder="Latitude" value={coordinates.latitude} onChange={(e)=>{
+                  var business = newBusiness;
+                  business.coordinates.latitude = e.target.value;
+                  this.setState({...this.state, newBusiness: business});
+                }}/>
+                <Form.Control type="number" placeholder="Longitude" value={coordinates.longitude} onChange={(e)=>{
+                  var business = newBusiness;
+                  business.coordinates.longitude = e.target.value;
+                  this.setState({...this.state, newBusiness: business});
+                }}/>
+              </Form.Group>
+
+              <Form.Group controlId="businessType">
+                <Form.Label>Type</Form.Label>
+                <Form.Control as="select" placeholder="Business type" value={newBusiness.business_type} onChange={(e)=>{
+                  var business = newBusiness;
+                  business.business_type = e.target.value;
+                  this.setState({...this.state, newBusiness: business});
+                }}>
+                  {self.getBusinessType()}
+                </Form.Control>
+              </Form.Group>
+
+              <Form.Group controlId="url">
+                <Form.Label>Web</Form.Label>
+                <Form.Control type="url" placeholder="URL" value={newBusiness.url} onChange={(e)=>{
+                  var business = newBusiness;
+                  business.url = e.target.value;
+                  this.setState({...this.state, newBusiness: business});
+                }}/>
+              </Form.Group>
+
+              <Form.Group controlId="facebook">
+                <Form.Label>Facebook</Form.Label>
+                <Form.Control type="url" placeholder="Facebook url" value={newBusiness.facebook} onChange={(e)=>{
+                  var business = newBusiness;
+                  business.facebook = e.target.value;
+                  this.setState({...this.state, newBusiness: business});
+                }}/>
+              </Form.Group>
+
+              <Form.Group controlId="instagram">
+                <Form.Label>Instagram</Form.Label>
+                <Form.Control type="url" placeholder="Instagram url" value={newBusiness.instagram} onChange={(e)=>{
+                  var business = newBusiness;
+                  business.instagram = e.target.value;
+                  this.setState({...this.state, newBusiness: business});
+                }}/>
+              </Form.Group>
+
+              <Form.Group controlId="twitter">
+                <Form.Label>Twitter</Form.Label>
+                <Form.Control type="url" placeholder="Twitter url" value={newBusiness.twitter} onChange={(e)=>{
+                  var business = newBusiness;
+                  business.twitter = e.target.value;
+                  this.setState({...this.state, newBusiness: business});
+                }}/>
+              </Form.Group>
+
+              <Form.Group controlId="whatsapp">
+                <Form.Label>Google maps</Form.Label>
+                <Form.Control type="url" placeholder="Whatsapp" value={newBusiness.whatsapp} onChange={(e)=>{
+                  var business = newBusiness;
+                  business.whatsapp = e.target.value;
+                  this.setState({...this.state, newBusiness: business});
+                }}/>
+              </Form.Group>
+
+              <Form.Group controlId="maps">
+                <Form.Label>Google maps</Form.Label>
+                <Form.Control type="url" placeholder="Google maps url" value={newBusiness.maps} onChange={(e)=>{
+                  var business = newBusiness;
+                  business.maps = e.target.value;
+                  this.setState({...this.state, newBusiness: business});
+                }}/>
+              </Form.Group>
+
+              <Form.Group controlId="description">
+                <Form.Label>Description</Form.Label>
+                <Form.Control as="textarea" placeholder="Description" value={newBusiness.description} onChange={(e)=>{
+                  var business = newBusiness;
+                  business.description = e.target.value;
+                  this.setState({...this.state, newBusiness: business});
+                }}/>
+              </Form.Group>
+
               <Button variant="primary" type="submit">
                 <Check/>
               </Button>

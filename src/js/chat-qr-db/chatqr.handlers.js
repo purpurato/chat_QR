@@ -21,7 +21,7 @@ module.exports = function (server, conf) {
 		return server.methods.couchprovider.getView(v)
 		.then(function(res){
 			return _.pluck(res, 'doc');
-		})
+		});
 	}
 
 	server.method({
@@ -67,6 +67,14 @@ module.exports = function (server, conf) {
 		return getBusiness()
 		.catch(function(err){
 			return Boom.notFound(err);
+		});
+	}
+
+	handler.getBusinessesPublicInfo = function(req, rep){
+		var v = '_design/business/_view/getPublicInfo';
+		return server.methods.couchprovider.getView(v)
+		.then(function(res){
+			return _.pluck(res, 'value');
 		});
 	}
 
@@ -426,6 +434,14 @@ module.exports = function (server, conf) {
 			console.error('getCurrencies', err);
 			return Boom.notFound(err);
 		});
+	}
+
+	handler.getMapsKey = function(req, rep){
+		if(conf.maps_key){
+			return conf.maps_key;
+		}else{
+			return '';
+		}
 	}
 
 	return handler;

@@ -16,6 +16,13 @@ export default class ChatQrService{
     });
   }
 
+  getBusinessesPublicInfo() {
+    return this.http({
+      method: 'GET',
+      url: '/businesses/public'
+    });
+  }
+
   getBusiness(chat_id) {
     return this.http({
       method: 'GET',
@@ -60,10 +67,10 @@ export default class ChatQrService{
     });
   }
 
-  getCurrencies(){
+  getMapsKey(){
     return this.http({
       method: 'GET',
-      url: '/currencies'
+      url: '/maps/key'
     }); 
   }
   

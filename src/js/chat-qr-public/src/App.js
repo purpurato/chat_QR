@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Route, HashRouter } from 'react-router-dom';
 
 import "./custom.scss"
+import "./App.css"
 
 import {JWTAuth, JWTAuthInterceptor, JWTAuthUsers, JWTAuthProfile, JWTAuthService} from 'react-hapi-jwt-auth';
 import Business from './business'
@@ -19,6 +20,7 @@ import store from "./redux/store";
 import { connect } from "react-redux";
 import Container from "react-bootstrap/Container"
 import {Wallets, Transaction} from "chat-qr-bitcoin-react"
+import Welcome from './welcome'
 
 class App extends Component {
 
@@ -136,44 +138,8 @@ class App extends Component {
   welcome(){
     const {user} = this.state;
     return (
-      <Container>
-        <Row>
-          <Col sm={8}>
-            <Image src="/icons/logo.png" fluid />
-          </Col>
-          <Col sm={4}>
-            <Card>
-              <Card.Body>
-                <Card.Title class='alert alert-primary'>Bitcoin</Card.Title>
-                <Card.Text>
-                  Accept bitcoin payments with our Telegram application. We will give you COP.
-                </Card.Text>
-              </Card.Body>
-            </Card>
-            <Card>
-              <Card.Body>
-                <Card.Title class='alert alert-primary'>Market analysis</Card.Title>
-                <Card.Text>
-                  With our customized AI models. We can give you insight into your local markets to grow your business.
-                </Card.Text>
-              </Card.Body>
-            </Card>
-            <Card>
-              <Card.Body>
-                <Card.Title class='alert alert-primary'>How to start?</Card.Title>
-                <Card.Text>
-                  Use our Telegram bot to create QR codes that can be presented to your customer. 
-                  Download Telegram from <a href="https://telegram.org/">https://telegram.org/</a> and add
-                  our bot <a href="https://telegram.me/bitcopbot">@bit-2cash</a> to your contacts. 
-                  To create a new QR code send a message using '$' and the amount of the transaction. 
-                  We will give you corresponding amount in COP at the end of the month. 
-                  Contact us at <a href="mailto:contact@bit-2cash.com">contact@bit-2cash.com</a>
-                </Card.Text>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      </Container>);
+      <Welcome/>
+    );
   }
 
   render(){
@@ -199,7 +165,7 @@ class App extends Component {
           <footer class="alert alert-dark" style={{fontSize: "small", width: "100%"}}>
             <Row className="justify-content-md-center">
               <Col md="auto">
-                <a href="mailto:contact@bit-2cash.com">Contact us</a>
+                <a href="mailto:contact@bit2cash.site">Contact us</a>
               </Col>
             </Row>
             <Row className="justify-content-md-center">
