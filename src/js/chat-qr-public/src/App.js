@@ -138,7 +138,7 @@ class App extends Component {
   welcome(){
     const {user} = this.state;
     return (
-      <Welcome/>
+      <Welcome development={process.env.NODE_ENV === 'development'}/>
     );
   }
 

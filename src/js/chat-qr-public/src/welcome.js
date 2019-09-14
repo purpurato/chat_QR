@@ -197,6 +197,7 @@ class Welcome extends Component {
   drawMap(){
     const self = this;
     const {latitude, longitude, mapsKey} = self.state;
+    const {development} = self.props;
     
     if(mapsKey){
       return (<GoogleMapReact
@@ -209,7 +210,7 @@ class Welcome extends Component {
       >
       {self.drawLocations()}
       </GoogleMapReact>)
-    }else{
+    }else if(development){
       return (<GoogleMapReact
         defaultCenter={{lat: latitude, lng: longitude}}
         defaultZoom={12}
@@ -219,6 +220,8 @@ class Welcome extends Component {
       >
       {self.drawLocations()}
       </GoogleMapReact>)
+    }else{
+      return '';
     }
     
   }
