@@ -256,7 +256,7 @@ class Welcome extends Component {
                 <Card.Text>
                   Usa nuestro robot Telegram para generar códigos QR que pueden ser presentados a tu cliente. 
                   Descarga Telegram de <a href="https://telegram.org/">https://telegram.org/</a> y adiciona
-                  nuestro robot <a href="https://telegram.me/bitcopbot">@bit-2cash</a> a tus contactos. 
+                  nuestro robot <a href="https://telegram.me/bit2cashBot">@bit-2cash</a> a tus contactos. 
                   Para generar tu primer QR, envía un mensaje usando '$' y el monto de la transacción. 
                   Si es la primera vez que usas nuestro servicio contáctanos en <a href="https://telegram.me/purpurato">@purpurato</a>
                   o <a href="mailto:contact@bit2cash.site">contact@bit2cash.site</a> para crear tu cuenta. 
