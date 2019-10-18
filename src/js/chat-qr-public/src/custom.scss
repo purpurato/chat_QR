@@ -1,33 +1,33 @@
 /*! `Darkster` Bootstrap 4 theme */
-@import url(https://fonts.googleapis.com/css?family=Comfortaa:200,300,400,700);
-$headings-font-family:Comfortaa;
+@import url(https://fonts.googleapis.com/css?family=Raleway:200,300,400,700);
+$headings-font-family:Raleway;
 
-$primary:#F77321;
-$secondary:#303030;
-$success:#015668;
+$primary:#452F91;
+$secondary:#F1B71C;
+$success:#F1A01F;
 $danger:#FF304F;
-$info:#0F81C7;
+$info:#452F91;
 $warning:#0DE2EA;
-$light:#e8e8e8;
-$dark:#000000;
+$light:#D7D7E1;
+$dark:#252034;
 $enable-shadows:true;
-$body-color:#cccccc;
-$link-color:#f0f0f0;
+$body-color:#FFFFFF;
+$link-color:#211D57;
 $font-size-base:1.1rem;
 $input-disabled-bg: #ccc;
 
 /*! Import Bootstrap 4 variables */
 @import "../node_modules/bootstrap/scss/functions";
 @import "../node_modules/bootstrap/scss/variables";
-$body-bg:$black;
-$link-hover-color:darken($link-color,20%);
+$body-bg:#FFFFFF;
+$link-hover-color:#F1A01F;
 $navbar-dark-hover-color:$white;
 $navbar-light-hover-color:$gray-800;
 $navbar-light-active-color:$gray-800;
 $input-bg:$gray-300;
 $card-border-color:rgba($black, 0.6);
-$card-cap-bg:lighten($gray-800, 10%);
-$card-bg:lighten($body-bg, 15%);
+$card-cap-bg:#452F91;
+$card-cap-color:$light;
 $list-group-bg:lighten($body-bg,5%);
 $list-group-border-color:rgba($black,0.6);
 $list-group-hover-bg:lighten($body-bg,10%);

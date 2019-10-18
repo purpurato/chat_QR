@@ -7,6 +7,7 @@ import Container from "react-bootstrap/Container"
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
+import CardColumns from 'react-bootstrap/CardColumns';
 import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
@@ -232,26 +233,26 @@ class Welcome extends Component {
     return (
       <Container>
         <Row>
-          <Col sm={4}>
-            <Card>
+          <CardColumns>
+            <Card bg="light" text="dark">
+              <Card.Header>¿Qué es Bitcoin?</Card.Header>
               <Card.Body>
-                <Card.Title class='alert alert-primary'>¿Qué es Bitcoin?</Card.Title>
                 <Card.Text>
                   Es la moneda digital del futuro que se usa en el presente en casi todo el mundo. Cada vez más los principales comercios están aceptando Bitcoins. En Colombia está comenzando a usarse y Bit2Cash te ayudará a hacerlo. 
                 </Card.Text>
               </Card.Body>
             </Card>
-            <Card>
+            <Card bg="light" text="dark">
+              <Card.Header>¿Qué es Bit2Cash?</Card.Header>
               <Card.Body>
-                <Card.Title class='alert alert-primary'>¿Qué es Bit2Cash?</Card.Title>
                 <Card.Text>
                   Bit2cash es una plataforma digital segura que permite utilizar Bitcoins como forma de pago. Bit2cash se encarga de convertirlos a pesos (COP) y hacértelos llegar.  
                 </Card.Text>
               </Card.Body>
             </Card>
-            <Card>
+            <Card bg="light" text="dark">
+              <Card.Header>¿Cómo empezar?</Card.Header>
               <Card.Body>
-                <Card.Title class='alert alert-primary'>¿Cómo empezar?</Card.Title>
                 <Card.Text>
                   Usa nuestro robot Telegram para generar códigos QR que pueden ser presentados a tu cliente. 
                   Descarga Telegram de <a href="https://telegram.org/">https://telegram.org/</a> y adiciona
@@ -262,10 +263,12 @@ class Welcome extends Component {
                 </Card.Text>
               </Card.Body>
             </Card>
-          </Col>
-          <Col sm={8}>
-            <Card>
-              <Card.Header class='alert alert-primary'>
+          </CardColumns>
+        </Row>
+        <Row>
+          <Col>
+            <Card bg="light" text="dark">
+              <Card.Header>
                 Nuestro mapa de clientes bit2cash
               </Card.Header>
               <Card.Body style={{ height: '90vh', width: '100%' }}>
