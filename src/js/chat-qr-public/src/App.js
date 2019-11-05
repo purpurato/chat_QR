@@ -8,6 +8,7 @@ import {JWTAuth, JWTAuthInterceptor, JWTAuthUsers, JWTAuthProfile, JWTAuthServic
 import Business from './business'
 import Invoices from './invoices'
 import NavBar from './nav-bar'
+import Footer from './footer'
 import Carousel from 'react-bootstrap/Carousel';
 import Image from 'react-bootstrap/Image'
 import Modal from 'react-bootstrap/Modal';
@@ -138,7 +139,7 @@ class App extends Component {
   welcome(){
     const {user} = this.state;
     return (
-      <Welcome/>
+      <Welcome development={process.env.NODE_ENV === 'development'}/>
     );
   }
 
@@ -149,7 +150,7 @@ class App extends Component {
           <header className="App-header">
             <NavBar/>
           </header>
-          <Container fluid="true" style={{height: "95%", minHeight: "90vh"}}>
+          <Container fluid="true" style={{height: "95%", minHeight: "90vh", "padding-top": "8vh"}}>
             <Route path="/login" component={this.login.bind(this)}/>
             <Route path="/logout" component={this.login.bind(this)}/>
             <Route path="/user" component={this.profile.bind(this)}/>
@@ -162,17 +163,8 @@ class App extends Component {
             <Route path="/invoice" component={this.public_invoice.bind(this)}/>
             <Route exact path="/" component={this.welcome.bind(this)}/>
           </Container>
-          <footer class="alert alert-dark" style={{fontSize: "small", width: "100%"}}>
-            <Row className="justify-content-md-center">
-              <Col md="auto">
-                <a href="mailto:contact@bit2cash.site">Contact us</a>
-              </Col>
-            </Row>
-            <Row className="justify-content-md-center">
-              <Col md="auto">
-                Copyright &copy; 2019 - bit-2cash
-              </Col>
-            </Row>
+          <footer>
+            <Footer/>
           </footer>
         </HashRouter>
       </div>

@@ -2,3 +2,8 @@
   text-align: left; 
   background-color: transparent
 }
+
+.nav-link-white {
+  color: white;
+  display: block;
+}

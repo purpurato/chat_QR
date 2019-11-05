@@ -52,15 +52,19 @@ class NavBar extends Component{
     const {user, history} = this.props;
     
     if(user && user.scope && user.scope.indexOf('default') != -1){
-      return <NavDropdown title={<User/>} id="basic-nav-dropdown">
-          <NavDropdown.Item onClick={()=>{history.push('/user')}}><User/> Profile</NavDropdown.Item>
-          <NavDropdown.Divider/>
-          <NavDropdown.Item onClick={()=>{history.push('/logout')}}><LogOut/> Logout</NavDropdown.Item>
-        </NavDropdown>
+      return (<Nav.Link>
+          <NavDropdown title={<User/>} id="basic-nav-dropdown">
+            <NavDropdown.Item onClick={()=>{history.push('/user')}}><User/> Profile</NavDropdown.Item>
+            <NavDropdown.Divider/>
+            <NavDropdown.Item onClick={()=>{history.push('/logout')}}><LogOut/> Logout</NavDropdown.Item>
+          </NavDropdown>
+        </Nav.Link>);
     }else{
-      return <NavDropdown title={<User/>} id="basic-nav-dropdown">
-          <NavDropdown.Item onClick={this.onUserLogin.bind(this)}><LogIn/> Login</NavDropdown.Item>
-        </NavDropdown>
+      return (<Nav.Link>
+          <NavDropdown title={<User/>} id="basic-nav-dropdown">
+            <NavDropdown.Item onClick={this.onUserLogin.bind(this)}><LogIn/> Login</NavDropdown.Item>
+          </NavDropdown>
+        </Nav.Link>);
     }
   }
 
@@ -75,17 +79,15 @@ class NavBar extends Component{
     const self = this;
     const {user} = self.props;
 
-    return (<Navbar bg="primary" expand="lg">
-      <Navbar.Brand href="#/"><Image src="/icons/logo_transparent_1.png" style={{height: "7vh"}}/></Navbar.Brand>
-      <Navbar.Toggle aria-controls="basic-navbar-nav" />
-      <Navbar.Collapse id="basic-navbar-nav">
+    return (<Navbar bg="secondary" fixed="top" >
+      <Navbar.Brand href="#/"><Image src="/icons/SVG/Logo_Con_Fondo/Isotipo/Isotipo_con_fondo_amarillo.svg" style={{height: "5vh"}}/></Navbar.Brand>
+      <Navbar.Toggle />
+      <Navbar.Collapse className="justify-content-end">
         <Nav className="mr-auto">
           {self.getHome()}
           {self.getComputing()}
           {self.getSettings()}
-          <Nav.Link>
-            {self.getUserDropDown()}
-          </Nav.Link>
+          {self.getUserDropDown()}
         </Nav>
       </Navbar.Collapse>
     </Navbar>);               

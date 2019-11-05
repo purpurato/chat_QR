@@ -67,6 +67,13 @@ export default class ChatQrService{
     });
   }
 
+  getCurrencies(){
+    return this.http({
+      method: 'GET',
+      url: '/currencies'
+    }); 
+  }
+
   getMapsKey(){
     return this.http({
       method: 'GET',
