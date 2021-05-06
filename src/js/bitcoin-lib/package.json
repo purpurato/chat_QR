@@ -16,7 +16,7 @@
     "bitcoin-core": "^2.2.0",
     "bluebird": "^3.5.5",
     "prompt": "^1.0.0",
-    "underscore": "^1.9.1"
+    "underscore": "^1.12.1"
   },
   "devDependencies": {
     "lab": "^18.0.2"
