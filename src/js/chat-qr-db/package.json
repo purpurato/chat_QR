@@ -7,7 +7,7 @@
     "@hapi/boom": "^7.4.2",
     "@hapi/joi": "^15.1.0",
     "couch-update-views": "^1.0.8",
-    "underscore": "^1.9.1"
+    "underscore": "^1.12.1"
   },
   "devDependencies": {},
   "scripts": {
