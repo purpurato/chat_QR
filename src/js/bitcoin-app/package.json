@@ -17,6 +17,6 @@
     "bluebird": "^3.5.5",
     "chat-qr-lib": "file:../chat-qr-lib",
     "minimist": "^1.2.0",
-    "underscore": "^1.9.1"
+    "underscore": "^1.12.1"
   }
 }
