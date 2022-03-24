@@ -16,7 +16,7 @@
     "bitcoin-lib": "file:../bitcoin-lib",
     "bluebird": "^3.5.5",
     "chat-qr-lib": "file:../chat-qr-lib",
-    "minimist": "^1.2.0",
+    "minimist": "^1.2.6",
     "underscore": "^1.9.1"
   }
 }
