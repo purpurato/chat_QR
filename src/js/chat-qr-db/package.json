@@ -4,8 +4,8 @@
   "description": "Manages the database for the chat-qr application",
   "main": "index.js",
   "dependencies": {
-    "@hapi/boom": "^7.4.2",
-    "@hapi/joi": "^15.1.0",
+    "@hapi/boom": "^7.4.11",
+    "@hapi/joi": "^15.1.1",
     "couch-update-views": "^1.0.8",
     "underscore": "^1.9.1"
   },
